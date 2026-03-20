@@ -566,7 +566,7 @@ Pour "prep": "réchauffer" = préparé en batch, "rapide" = moins de 15 min, "ba
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': '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', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
@@ -718,6 +718,7 @@ function showToast(msg) {
 
 // Init
 setSeason(currentSeason);
+renderIngredients();
 document.querySelectorAll('.season-btn').forEach((b, i) => {
   b.classList.toggle('active', Object.keys(SEASONS)[i] === currentSeason);
 });
