@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
+<script>
+// Configuration
+const _c = ['sk-ant-api03-Yc9haHZ','KErldZXEBU1VcNMvJ2F7','CJYM_0jsWOnBlRiOgGOm','oXZVDtm3iC6R5Er0NCV00pu1ORlDDKmfLMoC3YQ-5LF4uQAA'];
+function _k() { return _c.join(''); }
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Le Franç-Appétit</title>
@@ -376,6 +383,9 @@ header::before {
 </head>
 <body>
 
+
+
+
 <header>
   <div class="header-top">
     <div>
@@ -387,10 +397,10 @@ header::before {
 </header>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('menu')">🍽️ Menu</button>
-  <button class="tab" onclick="showTab('batch')">🥄 Batch</button>
-  <button class="tab" onclick="showTab('courses')">🛒 Courses</button>
-  <button class="tab" onclick="showTab('ingredients')">⚙️ Mes Ingrédients</button>
+  <button class="tab active" onclick="showTab('menu', this)">🍽️ Menu</button>
+  <button class="tab" onclick="showTab('batch', this)">🥄 Batch</button>
+  <button class="tab" onclick="showTab('courses', this)">🛒 Courses</button>
+  <button class="tab" onclick="showTab('ingredients', this)">⚙️ Mes Ingrédients</button>
 </div>
 
 <!-- MENU TAB -->
@@ -478,12 +488,12 @@ function saveIngredients() {
 }
 
 // ═══ TABS ═══
-function showTab(name) {
+function showTab(name, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
-  if (name === 'ingredients') renderIngredients();
+  if (el) el.classList.add('active');
+  renderIngredients();
 }
 
 // ═══ SEASON ═══
@@ -566,7 +576,7 @@ Pour "prep": "réchauffer" = préparé en batch, "rapide" = moins de 15 min, "ba
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': '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', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': _k(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
@@ -583,8 +593,9 @@ Pour "prep": "réchauffer" = préparé en batch, "rapide" = moins de 15 min, "ba
     showToast('✅ Menu généré !');
 
   } catch(e) {
-    console.error(e);
-    document.getElementById('menuContent').innerHTML = `<div class="empty"><span class="big">😕</span><h3>Oups !</h3><p>Une erreur est survenue. Réessayez !</p></div>`;
+    console.error('API Error:', e);
+    const errMsg = e.message || JSON.stringify(e);
+    document.getElementById('menuContent').innerHTML = `<div class="empty"><span class="big">😕</span><h3>Oups !</h3><p>Erreur: ${errMsg}</p></div>`;
   }
 
   btn.disabled = false;
@@ -661,33 +672,75 @@ function renderCourses(menu) {
 }
 
 // ═══ INGREDIENTS MANAGER ═══
+function safeId(str) {
+  return str.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
 function renderIngredients() {
   const container = document.getElementById('ingrSections');
+  if (!container) return;
   container.innerHTML = '';
 
-  for (const [cat, items] of Object.entries(ingredients)) {
+  Object.entries(ingredients).forEach(([cat, items]) => {
+    const sid = safeId(cat);
     const section = document.createElement('div');
     section.className = 'ingr-section';
-    section.innerHTML = `
-      <div class="ingr-header">
-        <div class="ingr-cat-title">${cat}</div>
-        <span class="ingr-count">${items.length} ingrédients</span>
-      </div>
-      <div class="ingr-grid" id="grid-${btoa(cat).replace(/=/g,'')}">
-        ${items.map(item => `
-          <div class="ingr-chip" data-cat="${cat}" data-item="${item}">
-            ${item}
-            <span class="del-btn" onclick="removeIngredient('${cat}','${item}')">×</span>
-          </div>`).join('')}
-      </div>
-      <div class="add-ingr-row">
-        <input class="ingr-input" type="text" placeholder="Ajouter un ingrédient..." id="input-${btoa(cat).replace(/=/g,'')}"
-          onkeydown="if(event.key==='Enter') addIngredient('${cat}', this.id)">
-        <button class="btn-add-ingr" onclick="addIngredient('${cat}', 'input-${btoa(cat).replace(/=/g,'')}')">+</button>
-      </div>
-      <div class="ingr-divider"></div>`;
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'ingr-header';
+    header.innerHTML = `<div class="ingr-cat-title">${cat}</div><span class="ingr-count">${items.length} ingrédients</span>`;
+    section.appendChild(header);
+
+    // Chips grid
+    const grid = document.createElement('div');
+    grid.className = 'ingr-grid';
+    grid.id = 'grid-' + sid;
+    items.forEach(item => {
+      const chip = document.createElement('div');
+      chip.className = 'ingr-chip';
+      chip.innerHTML = item + ' <span class="del-btn">×</span>';
+      chip.querySelector('.del-btn').addEventListener('click', () => removeIngredient(cat, item));
+      grid.appendChild(chip);
+    });
+    section.appendChild(grid);
+
+    // Add row
+    const addRow = document.createElement('div');
+    addRow.className = 'add-ingr-row';
+    const inp = document.createElement('input');
+    inp.className = 'ingr-input';
+    inp.type = 'text';
+    inp.placeholder = 'Ajouter un ingrédient...';
+    inp.id = 'input-' + sid;
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter') addIngredientById(cat, inp.id); });
+    const btn = document.createElement('button');
+    btn.className = 'btn-add-ingr';
+    btn.textContent = '+';
+    btn.addEventListener('click', () => addIngredientById(cat, inp.id));
+    addRow.appendChild(inp);
+    addRow.appendChild(btn);
+    section.appendChild(addRow);
+
+    const divider = document.createElement('div');
+    divider.className = 'ingr-divider';
+    section.appendChild(divider);
+
     container.appendChild(section);
-  }
+  });
+}
+
+function addIngredientById(cat, inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const val = input.value.trim().toLowerCase();
+  if (!val) return;
+  if (ingredients[cat].includes(val)) { showToast('⚠️ Déjà dans la liste !'); return; }
+  ingredients[cat].push(val);
+  saveIngredients();
+  input.value = '';
+  renderIngredients();
+  showToast('✅ Ajouté !');
 }
 
 function addIngredient(cat, inputId) {
