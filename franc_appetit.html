@@ -334,6 +334,66 @@ header::before {
 }
 .ingr-info strong { color: var(--accent); }
 
+
+/* Recipe Modal */
+.recipe-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+  overflow-y: auto;
+}
+.recipe-modal.open { display: flex; align-items: flex-start; justify-content: center; padding-top: 40px; }
+.recipe-card {
+  background: #1c1c1e;
+  border: 1px solid #48484a;
+  border-radius: 24px;
+  padding: 28px 24px;
+  max-width: 500px; width: 100%;
+  animation: slideUp 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.recipe-close {
+  float: right;
+  background: #3a3a3c; border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%;
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.recipe-title {
+  font-family: 'Righteous', sans-serif;
+  font-size: 22px; color: var(--accent);
+  margin-bottom: 6px; padding-right: 40px;
+}
+.recipe-note { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 20px; }
+.recipe-section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--accent2);
+  margin-bottom: 10px; margin-top: 18px;
+  padding-bottom: 6px; border-bottom: 1px solid #3a3a3c;
+}
+.recipe-ingr-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.recipe-ingr-list li {
+  font-size: 13px; color: #e5e5e5;
+  padding: 6px 10px; background: #2c2c2e;
+  border-radius: 8px; display: flex; align-items: center; gap: 8px;
+}
+.recipe-ingr-list li::before { content: "•"; color: var(--accent); font-size: 16px; }
+.recipe-steps { display: flex; flex-direction: column; gap: 12px; }
+.recipe-step {
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: white;
+  font-family: 'Righteous', sans-serif; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.step-text { font-size: 13px; color: #e5e5e5; line-height: 1.6; }
+.tap-hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 16px; font-style: italic; }
+
 /* Loading skeleton */
 .skel {
   height: 12px; border-radius: 6px; margin: 6px 0;
@@ -524,7 +584,14 @@ async function generateMenu() {
     .map(([cat, items]) => `${cat}: ${items.join(', ')}`)
     .join('\n');
 
-  const prompt = `Tu es un chef cuisinier expert en meal prep et batch cooking.
+  const prompt = `Tu es un chef cuisinier de haut niveau, expert en meal prep et batch cooking.
+Tu t'inspires des grands livres de cuisine et des meilleures références culinaires :
+Larousse Gastronomique, Le Guide Culinaire d'Escoffier, les recettes de Paul Bocuse,
+Cyril Lignac, Marmiton (recettes les mieux notées), 750g, Cuisine Actuelle,
+et pour les plats du monde : Ottolenghi (cuisine du Moyen-Orient), 
+Mamadou Diallo (cuisine africaine), et les grandes tables asiatiques.
+Chaque recette doit être précise, gourmande, avec des techniques culinaires correctes,
+des dosages exacts et des conseils de chef.
 Génère un planning repas hebdomadaire complet pour François (2 personnes) en ${s.name} (${s.months}).
 
 CONTRAINTES :
@@ -542,10 +609,17 @@ La liste de courses doit inclure :
 2. Les produits frais de saison à acheter
 3. Les extras nécessaires pour les recettes
 
+IMPORTANT: Les recettes doivent être COURTES et CONCISES :
+- Max 5 ingrédients avec quantités
+- Max 4 étapes de 1 phrase chacune
+- Garde le JSON compact pour ne pas dépasser la limite
+
 Réponds UNIQUEMENT en JSON valide :
 {
   "semaine": [
-    {"jour":"Lundi","weekend":false,"dejeuner":{"nom":"...","note":"...","prep":"réchauffer"},"diner":{"nom":"...","note":"...","prep":"réchauffer"}}
+    {"jour":"Lundi","weekend":false,
+     "dejeuner":{"nom":"...","note":"...","prep":"réchauffer","recette":{"ingredients":["..."],"etapes":["..."]}},
+     "diner":{"nom":"...","note":"...","prep":"réchauffer","recette":{"ingredients":["..."],"etapes":["..."]}}}
   ],
   "batch_cooking": [
     {"nom":"...","description":"...","duree":"30 min","utilise_pour":"..."}
@@ -585,6 +659,10 @@ Pour "prep": "réchauffer" = préparé en batch, "rapide" = moins de 15 min, "ba
     });
 
     const data = await res.json();
+    console.log('API response:', JSON.stringify(data).slice(0, 200));
+    if (!data.content || !data.content[0]) {
+      throw new Error('Réponse API invalide: ' + JSON.stringify(data));
+    }
     let raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
     currentMenu = JSON.parse(raw);
     renderMenu(currentMenu);
@@ -602,6 +680,31 @@ Pour "prep": "réchauffer" = préparé en batch, "rapide" = moins de 15 min, "ba
   btn.textContent = '✨ GÉNÉRER MON MENU';
 }
 
+
+function openRecipe(meal) {
+  if (!meal.recette) return;
+  document.getElementById('recipeTitle').textContent = meal.nom;
+  document.getElementById('recipeNote').textContent = meal.note || '';
+  
+  const ingrList = document.getElementById('recipeIngr');
+  ingrList.innerHTML = (meal.recette.ingredients || []).map(i => `<li>${i}</li>`).join('');
+  
+  const stepsDiv = document.getElementById('recipeSteps');
+  stepsDiv.innerHTML = (meal.recette.etapes || []).map((e, i) => `
+    <div class="recipe-step">
+      <div class="step-num">${i+1}</div>
+      <div class="step-text">${e}</div>
+    </div>`).join('');
+  
+  document.getElementById('recipeModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRecipe() {
+  document.getElementById('recipeModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 function prepLabel(p) {
   if (p === 'réchauffer') return '♻ Réchauffer';
   if (p === 'batch') return '🥄 Batch';
@@ -614,17 +717,19 @@ function renderMenu(menu) {
     const isWeekend = day.weekend || day.jour === 'Samedi' || day.jour === 'Dimanche';
     html += `<div class="day-card ${isWeekend ? 'weekend' : ''}" style="transition-delay:${i*0.05}s">
       <div class="day-name">${day.jour.slice(0,3)}</div>
-      <div class="meal-block">
+      <div class="meal-block" onclick="openRecipe(${JSON.stringify(day.dejeuner).replace(/"/g,"&quot;")})" style="cursor:pointer;">
         <div class="meal-label">🌞 Déj</div>
         <div class="meal-name">${day.dejeuner.nom}</div>
         ${day.dejeuner.note ? `<div class="meal-note">${day.dejeuner.note}</div>` : ''}
         <span class="prep-tag ${day.dejeuner.prep}">${prepLabel(day.dejeuner.prep)}</span>
+        ${day.dejeuner.recette ? '<div style="font-size:9px;color:var(--accent);margin-top:3px;">👆 Voir recette</div>' : ''}
       </div>
-      <div class="meal-block">
+      <div class="meal-block" onclick="openRecipe(${JSON.stringify(day.diner).replace(/"/g,"&quot;")})" style="cursor:pointer;">
         <div class="meal-label">🌙 Dîner</div>
         <div class="meal-name">${day.diner.nom}</div>
         ${day.diner.note ? `<div class="meal-note">${day.diner.note}</div>` : ''}
         <span class="prep-tag ${day.diner.prep}">${prepLabel(day.diner.prep)}</span>
+        ${day.diner.recette ? '<div style="font-size:9px;color:var(--accent);margin-top:3px;">👆 Voir recette</div>' : ''}
       </div>
     </div>`;
   });
@@ -776,5 +881,20 @@ document.querySelectorAll('.season-btn').forEach((b, i) => {
   b.classList.toggle('active', Object.keys(SEASONS)[i] === currentSeason);
 });
 </script>
+
+<!-- Recipe Modal -->
+<div class="recipe-modal" id="recipeModal" onclick="if(event.target===this)closeRecipe()">
+  <div class="recipe-card" id="recipeCard">
+    <button class="recipe-close" onclick="closeRecipe()">×</button>
+    <div class="recipe-title" id="recipeTitle"></div>
+    <div class="recipe-note" id="recipeNote"></div>
+    <div class="recipe-section-title">🛒 Ingrédients (2 personnes)</div>
+    <ul class="recipe-ingr-list" id="recipeIngr"></ul>
+    <div class="recipe-section-title">👨‍🍳 Préparation</div>
+    <div class="recipe-steps" id="recipeSteps"></div>
+    <div class="tap-hint">Appuyez en dehors pour fermer</div>
+  </div>
+</div>
+
 </body>
 </html>
