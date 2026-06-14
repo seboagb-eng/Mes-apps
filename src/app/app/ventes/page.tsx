@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard, BadgeStatut, EtatVide, TitreSection } from "@/components/ui";
 import { formatFCFA, formatDateCourte } from "@/lib/format";
 import SaisieVente from "@/modules/ventes/SaisieVente";
+import Encaisser from "@/modules/recouvrement/Encaisser";
 import type { Client, Compte } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -75,24 +76,35 @@ export default async function VentesPage({
                   ? v.lignes[0].designation
                   : "Vente";
               return (
-                <li key={v.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">
-                      {v.customer_id ? nomClient.get(v.customer_id) ?? "Client" : designation}
+                <li key={v.id} className="px-4 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">
+                        {v.customer_id ? nomClient.get(v.customer_id) ?? "Client" : designation}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {formatDateCourte(v.date)}
+                        {v.montant_paye > 0 && v.statut !== "payee"
+                          ? ` · payé ${formatFCFA(v.montant_paye)}`
+                          : ""}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {formatDateCourte(v.date)}
-                      {v.montant_paye > 0 && v.statut !== "payee"
-                        ? ` · payé ${formatFCFA(v.montant_paye)}`
-                        : ""}
+                    <div className="text-right">
+                      <div className="text-sm font-semibold tabular-nums">
+                        {formatFCFA(v.montant_total)}
+                      </div>
+                      <BadgeStatut statut={v.statut} />
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold tabular-nums">
-                      {formatFCFA(v.montant_total)}
+                  {v.statut !== "payee" ? (
+                    <div className="mt-2 flex justify-end">
+                      <Encaisser
+                        saleId={v.id}
+                        resteDu={v.montant_total - v.montant_paye}
+                        comptes={(comptes ?? []) as Compte[]}
+                      />
                     </div>
-                    <BadgeStatut statut={v.statut} />
-                  </div>
+                  ) : null}
                 </li>
               );
             })}
