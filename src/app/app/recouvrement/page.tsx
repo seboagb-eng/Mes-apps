@@ -3,7 +3,9 @@ import { getContexte } from "@/lib/auth";
 import { StatCard, EtatVide, TitreSection } from "@/components/ui";
 import { formatFCFA, ancienneteJours, trancheAnciennete, formatDateCourte } from "@/lib/format";
 import Relancer from "@/modules/recouvrement/Relancer";
-import type { Client } from "@/lib/types";
+import Encaisser from "@/modules/recouvrement/Encaisser";
+import ClientCreance from "@/modules/recouvrement/ClientCreance";
+import type { Client, Compte } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -17,21 +19,24 @@ export default async function RecouvrementPage() {
   const { company } = await getContexte();
   const supabase = createClient();
 
-  const [{ data: ventes }, { data: clients }, { data: relances }] = await Promise.all([
-    supabase
-      .from("sales")
-      .select("id, customer_id, montant_total, montant_paye, statut, echeance, date")
-      .neq("statut", "payee")
-      .order("echeance", { ascending: true, nullsFirst: false }),
-    supabase.from("customers").select("*"),
-    supabase
-      .from("reminders")
-      .select("sale_id, ton, canal, date_envoi")
-      .order("date_envoi", { ascending: false })
-      .limit(100),
-  ]);
+  const [{ data: ventes }, { data: clients }, { data: relances }, { data: comptesData }] =
+    await Promise.all([
+      supabase
+        .from("sales")
+        .select("id, customer_id, montant_total, montant_paye, statut, echeance, date")
+        .neq("statut", "payee")
+        .order("echeance", { ascending: true, nullsFirst: false }),
+      supabase.from("customers").select("*").order("nom"),
+      supabase
+        .from("reminders")
+        .select("sale_id, ton, canal, date_envoi")
+        .order("date_envoi", { ascending: false })
+        .limit(100),
+      supabase.from("accounts").select("*").order("created_at"),
+    ]);
 
   const listeClients = (clients ?? []) as Client[];
+  const comptes = (comptesData ?? []) as Compte[];
   const clientParId = new Map(listeClients.map((c) => [c.id, c]));
 
   const creances = (ventes ?? [])
@@ -92,6 +97,9 @@ export default async function RecouvrementPage() {
                       </span>
                       {c.echeance ? <span>échéance {formatDateCourte(c.echeance)}</span> : null}
                     </div>
+                    <div className="mt-1">
+                      <ClientCreance saleId={c.id} client={client ?? null} clients={listeClients} />
+                    </div>
                     {rel ? (
                       <div className="mt-1 text-xs text-gray-400">
                         Dernière relance : {rel.date_envoi ? formatDateCourte(rel.date_envoi) : "—"} ({rel.ton})
@@ -103,7 +111,8 @@ export default async function RecouvrementPage() {
                   </div>
                 </div>
 
-                <div className="mt-2 flex justify-end">
+                <div className="mt-2 flex flex-wrap justify-end gap-2">
+                  <Encaisser saleId={c.id} resteDu={c.du} comptes={comptes} />
                   <Relancer
                     saleId={c.id}
                     nomEntreprise={company.nom}

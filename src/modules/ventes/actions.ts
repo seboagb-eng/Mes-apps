@@ -128,3 +128,71 @@ export async function creerClient(formData: FormData) {
   revalidatePath("/app/ventes");
   return { ok: true };
 }
+
+/** Modifie les coordonnées d'un client (pour les relances futures). */
+export async function modifierClient(formData: FormData) {
+  const { company, lectureSeule } = await getContexte();
+  if (lectureSeule) return { erreur: "Action non autorisée (lecture seule)." };
+
+  const id = String(formData.get("id") || "");
+  const nom = String(formData.get("nom") || "").trim();
+  const telephone = String(formData.get("telephone") || "").trim() || null;
+  const email = String(formData.get("email") || "").trim() || null;
+  const notes = String(formData.get("notes") || "").trim() || null;
+  if (!id) return { erreur: "Client introuvable." };
+  if (!nom) return { erreur: "Le nom du client est obligatoire." };
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("customers")
+    .update({ nom, telephone, email, notes })
+    .eq("id", id)
+    .eq("company_id", company.id);
+  if (error) return { erreur: error.message };
+
+  revalidatePath("/app/clients");
+  revalidatePath("/app/recouvrement");
+  return { ok: true };
+}
+
+/**
+ * Rattache un client à une vente qui n'en avait pas (ou en change).
+ * Permet de récupérer les coordonnées pour les relances après coup.
+ * Si « nouveau_client » est fourni, on crée le client puis on le rattache.
+ */
+export async function rattacherClient(formData: FormData) {
+  const { company, lectureSeule } = await getContexte();
+  if (lectureSeule) return { erreur: "Action non autorisée (lecture seule)." };
+
+  const sale_id = String(formData.get("sale_id") || "");
+  let customer_id = String(formData.get("customer_id") || "") || null;
+  const nouveauNom = String(formData.get("nouveau_client") || "").trim();
+  const nouveauTel = String(formData.get("nouveau_telephone") || "").trim() || null;
+  if (!sale_id) return { erreur: "Vente introuvable." };
+
+  const supabase = createClient();
+
+  // Création à la volée d'un client si un nom est saisi.
+  if (nouveauNom) {
+    const { data, error } = await supabase
+      .from("customers")
+      .insert({ company_id: company.id, nom: nouveauNom, telephone: nouveauTel })
+      .select("id")
+      .single();
+    if (error || !data) return { erreur: error?.message ?? "Création du client impossible." };
+    customer_id = data.id;
+  }
+
+  if (!customer_id) return { erreur: "Choisissez un client ou saisissez un nom." };
+
+  const { error } = await supabase
+    .from("sales")
+    .update({ customer_id })
+    .eq("id", sale_id)
+    .eq("company_id", company.id);
+  if (error) return { erreur: error.message };
+
+  revalidatePath("/app/recouvrement");
+  revalidatePath("/app/ventes");
+  return { ok: true };
+}
