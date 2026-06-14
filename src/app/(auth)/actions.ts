@@ -71,6 +71,44 @@ export async function inscription(_prev: unknown, formData: FormData) {
   redirect("/app/demarrage");
 }
 
+/**
+ * Récupération d'onboarding : un utilisateur DÉJÀ connecté mais sans entreprise
+ * (onboarding interrompu, ex. coupure réseau) crée son entreprise ici.
+ * Évite le cul-de-sac « compte orphelin » et la boucle de redirection.
+ */
+export async function creerEntrepriseConnecte(_prev: unknown, formData: FormData) {
+  const nomEntreprise = String(formData.get("nom_entreprise") || "").trim();
+  const secteur = String(formData.get("secteur") || "").trim();
+  const nomDirigeant = String(formData.get("nom_dirigeant") || "").trim();
+  const telephone = String(formData.get("telephone") || "").trim();
+
+  if (!nomEntreprise || !nomDirigeant) {
+    return { erreur: "Renseignez le nom de l'entreprise et votre nom." };
+  }
+
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/connexion");
+
+  const { error } = await supabase.rpc("creer_entreprise", {
+    p_nom_entreprise: nomEntreprise,
+    p_secteur: secteur || null,
+    p_nom_dirigeant: nomDirigeant,
+    p_telephone: telephone || null,
+  });
+  if (error) {
+    // Si une entreprise existe déjà (double soumission), on continue vers l'app.
+    if (!error.message.includes("déjà une entreprise")) {
+      return { erreur: "Impossible de créer l'entreprise : " + error.message };
+    }
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/app/demarrage");
+}
+
 /** Déconnexion. */
 export async function deconnexion() {
   const supabase = createClient();

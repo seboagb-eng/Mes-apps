@@ -26,8 +26,10 @@ export async function getContexte(): Promise<ContexteApp> {
     .single<Utilisateur>();
 
   if (!profil) {
-    // Compte auth sans entreprise : l'onboarding n'a pas abouti.
-    redirect("/inscription");
+    // Compte auth sans entreprise (onboarding interrompu) : on l'envoie vers la
+    // page de récupération — surtout PAS vers /inscription, qui boucle avec le
+    // middleware (utilisateur connecté → renvoyé vers /app → ...).
+    redirect("/demarrage-entreprise");
   }
 
   const { data: company } = await supabase
