@@ -1,0 +1,67 @@
+# PILOT — Suivi d'avancement
+
+> Relire ce fichier au début de chaque session. Une fonctionnalité à la fois.
+
+## ✅ Fait
+
+### Étape 1 — Fondations
+- Projet **Next.js 14 (App Router) + TypeScript strict + Tailwind** initialisé.
+- Structure par module : `src/modules/{dashboard,tresorerie,ventes,recouvrement,reglages}`.
+- Utilitaires FCFA (entiers, format « 1 250 000 FCFA ») et dates GMT+1 (`src/lib/format.ts`).
+- Clients Supabase : navigateur, serveur, middleware de session, client admin (service_role).
+- **Schéma SQL complet** + **RLS multi-tenant** + fonctions métier (`supabase/migrations/0001→0004`).
+- **Test d'isolation RLS** (`supabase/tests/isolation_rls.sql`) + tests unitaires (FCFA, relances).
+- PWA : manifest, service worker (network-first), icônes.
+
+### Étape 2 — Auth & onboarding
+- Inscription (entreprise + dirigeant) via RPC `creer_entreprise`, connexion, déconnexion.
+- Protection des routes `/app` par middleware. Assistant de démarrage `/app/demarrage` (comptes, clients, produits).
+- Essai 14 jours + bandeau ; mode **lecture seule** (blocage doux) géré dans `getContexte()`.
+
+### Étape 3 — Trésorerie
+- Comptes (caisse/banque/momo), vue consolidée, entrée/sortie, **transfert** (RPC atomique).
+- Solde maintenu par **trigger** ; courbe d'évolution 30/90 jours.
+
+### Étape 4 — Clients & ventes
+- Fiche client, saisie de vente rapide (montant libre), payé/partiel/crédit, liste filtrable.
+- Chaque paiement crédite automatiquement le compte choisi (RPC `enregistrer_paiement`).
+
+### Étape 5 — Recouvrement
+- Tableau des créances par ancienneté (0-30 / 31-60 / +60), total dû.
+- Bouton **Relancer** : 3 tons, WhatsApp/SMS pré-rempli, lien de paiement optionnel, historique.
+
+### Étape 6 — Dashboard
+- 6 indicateurs, 2 graphiques (CA 12 semaines, dépenses du mois), 3 alertes.
+
+### Étape 7 — FedaPay (socle)
+- Génération de lien de paiement (`src/lib/fedapay.ts`, sandbox/live), webhook signé
+  (`/api/fedapay/webhook`), RPC admin idempotente `enregistrer_paiement_admin`,
+  page de paiement de secours `/payer/[saleId]`.
+
+### Étape 8 — PWA (socle)
+- Installable, service worker, headers de cache. **À compléter** : sauvegarde locale des
+  formulaires en cours (offline), audit poids 3G.
+
+### Étape 9 — Abonnements (socle)
+- Essai + lecture seule actifs. Page `/app/reglages/abonnement` (UI des plans).
+  **À compléter** : paiement de l'abonnement via FedaPay + relance à l'échéance.
+
+## 🔧 À faire ensuite (ordre conseillé)
+1. **Créer le projet Supabase** et exécuter les migrations (voir `docs/SUPABASE.md`).
+2. Brancher les clés dans `.env.local`, tester l'inscription → onboarding → dashboard.
+3. Compléter étape 8 (offline form + audit perfs) et étape 9 (paiement abonnement).
+4. Import CSV des ventes (format à documenter).
+5. Étape 10 : revue de sécurité complète + déploiement Vercel + domaine.
+
+## 🕓 Plus tard (hors MVP — ne pas élargir le périmètre)
+- Import CSV avancé, multi-sites, espace comptable.
+- Assistant IA (API Anthropic). App Flutter native.
+- Envoi WhatsApp automatique programmé (API WhatsApp Business).
+- Invitation d'équipe complète (création auth + email) — placeholder actuel en réglages.
+- Branchement source automatique des ventes (MECeF / DGI).
+
+## ⚠️ Notes techniques
+- **Confirmation d'email à désactiver** dans Supabase Auth pour le MVP (sinon l'onboarding
+  ne peut pas créer l'entreprise dans la foulée de l'inscription).
+- Montants **toujours en entiers FCFA**. Dates en UTC, affichées GMT+1 (`Africa/Porto-Novo`).
+- Clés API **jamais** dans le code → `.env.local` (non versionné).
