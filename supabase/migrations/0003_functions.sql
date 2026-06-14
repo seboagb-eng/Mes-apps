@@ -125,11 +125,11 @@ begin
 
   update sales set
     montant_paye = v_paye,
-    statut = case
+    statut = (case
       when v_paye >= v_total then 'payee'
       when v_paye > 0 then 'partielle'
       else 'impayee'
-    end
+    end)::statut_vente
   where id = p_sale_id;
 end;
 $$;
