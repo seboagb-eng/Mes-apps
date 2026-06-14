@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatCard, BadgeStatut, EtatVide, TitreSection } from "@/components/ui";
 import { formatFCFA, formatDateCourte } from "@/lib/format";
 import SaisieVente from "@/modules/ventes/SaisieVente";
+import ImportCSV from "@/modules/ventes/ImportCSV";
 import Encaisser from "@/modules/recouvrement/Encaisser";
 import type { Client, Compte } from "@/lib/types";
 
@@ -50,6 +51,7 @@ export default async function VentesPage({
       </div>
 
       <SaisieVente clients={listeClients} comptes={(comptes ?? []) as Compte[]} />
+      <ImportCSV comptes={(comptes ?? []) as Compte[]} />
 
       <div>
         <div className="mb-3 flex gap-2 overflow-x-auto">

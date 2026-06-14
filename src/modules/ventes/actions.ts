@@ -107,6 +107,104 @@ export async function encaisser(formData: FormData) {
   return { ok: true };
 }
 
+/**
+ * Importe des ventes depuis un CSV (format documenté).
+ * Crée les clients manquants (par nom), insère les ventes et enregistre
+ * les paiements éventuels sur le compte de trésorerie choisi.
+ */
+export async function importerVentesCSV(formData: FormData): Promise<{
+  erreur?: string;
+  importees?: number;
+  total?: number;
+  details?: { ligne: number; message: string }[];
+}> {
+  const { company, lectureSeule } = await getContexte();
+  if (lectureSeule) return { erreur: "Action non autorisée (lecture seule)." };
+
+  const { parseVentesCSV } = await import("@/lib/csv");
+  const csv = String(formData.get("csv") || "");
+  const account_id = String(formData.get("account_id") || "") || null;
+  if (!csv.trim()) return { erreur: "Fichier vide." };
+
+  const { lignes, erreurs } = parseVentesCSV(csv);
+  if (lignes.length === 0) {
+    return { erreur: erreurs[0]?.message ?? "Aucune ligne valide à importer.", details: erreurs };
+  }
+
+  const supabase = createClient();
+  const { data: clientsExistants } = await supabase.from("customers").select("id, nom");
+  const cle = (n: string) => n.toLowerCase().trim();
+  const indexClients = new Map<string, string>();
+  for (const c of clientsExistants ?? []) indexClients.set(cle(c.nom), c.id);
+
+  const details = [...erreurs];
+  let importees = 0;
+
+  for (let i = 0; i < lignes.length; i++) {
+    const l = lignes[i];
+    try {
+      // Résolution / création du client par nom.
+      let customer_id: string | null = null;
+      if (l.client) {
+        customer_id = indexClients.get(cle(l.client)) ?? null;
+        if (!customer_id) {
+          const { data, error } = await supabase
+            .from("customers")
+            .insert({ company_id: company.id, nom: l.client })
+            .select("id")
+            .single();
+          if (error || !data) throw new Error("client : " + (error?.message ?? "échec"));
+          const nouvelId = data.id as string;
+          customer_id = nouvelId;
+          indexClients.set(cle(l.client), nouvelId);
+        }
+      }
+
+      // Création de la vente (montant_paye recalculé par la RPC si paiement).
+      const insert: Record<string, unknown> = {
+        company_id: company.id,
+        customer_id,
+        lignes: [{ produit_id: null, designation: l.designation, quantite: 1, prix_unitaire: l.montant_total }],
+        montant_total: l.montant_total,
+        montant_paye: 0,
+        statut: "impayee",
+        echeance: l.echeance,
+      };
+      if (l.date) insert.date = l.date;
+
+      const { data: vente, error } = await supabase.from("sales").insert(insert).select("id").single();
+      if (error || !vente) throw new Error(error?.message ?? "création vente échouée");
+
+      // Paiement initial éventuel.
+      if (l.montant_paye > 0) {
+        if (!account_id) {
+          details.push({
+            ligne: i + 2,
+            message: "Paiement ignoré : aucun compte de trésorerie sélectionné.",
+          });
+        } else {
+          const { error: errP } = await supabase.rpc("enregistrer_paiement", {
+            p_sale_id: vente.id,
+            p_account_id: account_id,
+            p_montant: l.montant_paye,
+            p_moyen: l.moyen,
+            p_date: l.date ?? new Date().toISOString().slice(0, 10),
+          });
+          if (errP) details.push({ ligne: i + 2, message: "Paiement non enregistré : " + errP.message });
+        }
+      }
+      importees++;
+    } catch (e) {
+      details.push({ ligne: i + 2, message: e instanceof Error ? e.message : "erreur inconnue" });
+    }
+  }
+
+  revalidatePath("/app/ventes");
+  revalidatePath("/app/recouvrement");
+  revalidatePath("/app");
+  return { importees, total: lignes.length, details };
+}
+
 /** Crée un client. */
 export async function creerClient(formData: FormData) {
   const { company, lectureSeule } = await getContexte();
