@@ -100,7 +100,8 @@ as $$
 declare
   v_company_id uuid := auth_company_id();
   v_total bigint;
-  v_paye bigint;
+  v_old bigint;
+  v_reste bigint;
 begin
   -- Vérifie que la vente ET le compte appartiennent à l'entreprise de l'appelant.
   if not exists (select 1 from sales where id = p_sale_id and company_id = v_company_id) then
@@ -113,21 +114,24 @@ begin
     raise exception 'Le montant doit être positif.';
   end if;
 
+  -- Anti-surpaiement : on ne peut pas encaisser plus que le reste dû.
+  select montant_total, montant_paye into v_total, v_old from sales where id = p_sale_id;
+  v_reste := v_total - v_old;
+  if p_montant > v_reste then
+    raise exception 'Le montant (% FCFA) dépasse le reste dû (% FCFA).', p_montant, v_reste;
+  end if;
+
   insert into payments (company_id, sale_id, account_id, montant, date, moyen)
   values (v_company_id, p_sale_id, p_account_id, p_montant, p_date, p_moyen);
 
   insert into transactions (company_id, account_id, type, categorie, montant, date, description, sale_id)
   values (v_company_id, p_account_id, 'entree', 'vente', p_montant, p_date, 'Encaissement vente', p_sale_id);
 
-  select montant_total, montant_paye + p_montant
-    into v_total, v_paye
-    from sales where id = p_sale_id;
-
   update sales set
-    montant_paye = v_paye,
+    montant_paye = v_old + p_montant,
     statut = (case
-      when v_paye >= v_total then 'payee'
-      when v_paye > 0 then 'partielle'
+      when v_old + p_montant >= v_total then 'payee'
+      when v_old + p_montant > 0 then 'partielle'
       else 'impayee'
     end)::statut_vente
   where id = p_sale_id;
