@@ -54,12 +54,14 @@ export default async function RecouvrementPage() {
     "+60": creances.filter((c) => c.tranche === "+60").reduce((s, c) => s + c.du, 0),
   };
 
-  // Dernière relance par vente.
+  // Dernière relance + nombre de relances par vente.
   const derniereRelance = new Map<string, { ton: string; date_envoi: string | null }>();
+  const nbRelances = new Map<string, number>();
   for (const r of relances ?? []) {
     if (!derniereRelance.has(r.sale_id)) {
       derniereRelance.set(r.sale_id, { ton: r.ton, date_envoi: r.date_envoi });
     }
+    nbRelances.set(r.sale_id, (nbRelances.get(r.sale_id) ?? 0) + 1);
   }
 
   return (
@@ -102,9 +104,13 @@ export default async function RecouvrementPage() {
                     </div>
                     {rel ? (
                       <div className="mt-1 text-xs text-gray-400">
-                        Dernière relance : {rel.date_envoi ? formatDateCourte(rel.date_envoi) : "—"} ({rel.ton})
+                        Relancé {nbRelances.get(c.id) ?? 1}×
+                        {" · dernière "}
+                        {rel.date_envoi ? formatDateCourte(rel.date_envoi) : "—"} ({rel.ton})
                       </div>
-                    ) : null}
+                    ) : (
+                      <div className="mt-1 text-xs text-gray-300">Jamais relancé</div>
+                    )}
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold tabular-nums">{formatFCFA(c.du)}</div>
