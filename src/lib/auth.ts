@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Company, Utilisateur } from "@/lib/types";
+import type { Company, Utilisateur, Abonnement } from "@/lib/types";
 
 export interface ContexteApp {
   utilisateur: Utilisateur;
   company: Company;
-  lectureSeule: boolean; // true si essai expiré / entreprise bloquée / rôle lecture
+  abonnement: Abonnement | null;
+  lectureSeule: boolean; // true si essai expiré / abonnement échu / entreprise bloquée / rôle lecture
 }
 
 /**
@@ -40,13 +41,31 @@ export async function getContexte(): Promise<ContexteApp> {
 
   if (!company) redirect("/connexion");
 
+  // Abonnement le plus récent (pour le blocage doux à l'échéance).
+  const { data: abonnement } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("company_id", profil.company_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<Abonnement>();
+
   const essaiExpire =
     company.statut !== "actif" &&
     company.date_fin_essai != null &&
     new Date(company.date_fin_essai) < new Date();
 
-  const lectureSeule =
-    company.statut === "bloque" || essaiExpire || profil.role === "lecture";
+  // Blocage doux : entreprise active mais abonnement échu (échéance dépassée).
+  const abonnementEchu =
+    company.statut === "actif" &&
+    abonnement?.prochaine_echeance != null &&
+    new Date(abonnement.prochaine_echeance) < new Date();
 
-  return { utilisateur: profil, company, lectureSeule };
+  const lectureSeule =
+    company.statut === "bloque" ||
+    essaiExpire ||
+    abonnementEchu ||
+    profil.role === "lecture";
+
+  return { utilisateur: profil, company, abonnement: abonnement ?? null, lectureSeule };
 }

@@ -6,7 +6,10 @@ import EnregistrerSW from "@/components/EnregistrerSW";
 import { formatDate } from "@/lib/format";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const { utilisateur, company, lectureSeule } = await getContexte();
+  const { utilisateur, company, abonnement, lectureSeule } = await getContexte();
+  const abonnementEchu =
+    abonnement?.prochaine_echeance != null &&
+    new Date(abonnement.prochaine_echeance) < new Date();
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl pb-20 md:pb-6">
@@ -36,9 +39,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
         {lectureSeule ? (
           <div className="bg-amber-50 px-4 py-1.5 text-center text-xs text-warning">
-            Mode lecture seule — votre essai est terminé.{" "}
+            Mode lecture seule — {abonnementEchu ? "abonnement échu" : "votre essai est terminé"}.{" "}
             <Link href="/app/reglages/abonnement" className="font-semibold underline">
-              Activer mon abonnement
+              {abonnementEchu ? "Renouveler mon abonnement" : "Activer mon abonnement"}
             </Link>
           </div>
         ) : null}

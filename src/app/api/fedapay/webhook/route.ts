@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
-import { traiterPaiementConfirme } from "@/lib/fedapay";
+import { traiterPaiementConfirme, activerAbonnement } from "@/lib/fedapay";
+import { PLANS } from "@/lib/constantes";
+import type { Plan } from "@/lib/types";
 
 /**
  * Webhook FedaPay : confirme un paiement et met à jour la facture + la trésorerie.
@@ -36,11 +38,19 @@ export async function POST(req: NextRequest) {
   }
 
   const entite = event?.entity ?? event?.["v1/transaction"] ?? {};
-  const saleId = entite?.custom_metadata?.sale_id;
+  const meta = entite?.custom_metadata ?? {};
   const montant = Number(entite?.amount) || 0;
 
-  if (saleId && montant > 0) {
-    await traiterPaiementConfirme({ saleId, montant });
+  // Paiement d'un abonnement : on active/renouvelle l'entreprise.
+  if (meta?.type === "subscription" && meta?.company_id) {
+    const plan = (meta.plan as Plan) in PLANS ? (meta.plan as Plan) : "starter";
+    await activerAbonnement({ companyId: meta.company_id, plan, montant: PLANS[plan].prix });
+    return NextResponse.json({ recu: true });
+  }
+
+  // Paiement d'une facture client.
+  if (meta?.sale_id && montant > 0) {
+    await traiterPaiementConfirme({ saleId: meta.sale_id, montant });
   }
 
   return NextResponse.json({ recu: true });

@@ -1,13 +1,16 @@
 import { getContexte } from "@/lib/auth";
 import { TitreSection } from "@/components/ui";
-import { formatFCFA, formatDate } from "@/lib/format";
-import { PLANS } from "@/lib/constantes";
-import type { Plan } from "@/lib/types";
+import { formatDate } from "@/lib/format";
+import BoutonsAbonnement from "@/modules/abonnement/BoutonsAbonnement";
 
 export const dynamic = "force-dynamic";
 
 export default async function AbonnementPage() {
-  const { company } = await getContexte();
+  const { company, abonnement, lectureSeule } = await getContexte();
+
+  const echu =
+    abonnement?.prochaine_echeance != null &&
+    new Date(abonnement.prochaine_echeance) < new Date();
 
   return (
     <div className="space-y-5">
@@ -22,38 +25,36 @@ export default async function AbonnementPage() {
         </div>
       ) : null}
 
-      <div className="space-y-3">
-        {(Object.keys(PLANS) as Plan[]).map((p) => {
-          const plan = PLANS[p];
-          const actuel = company.plan === p;
-          return (
-            <div
-              key={p}
-              className={`card ${actuel ? "ring-2 ring-primary" : ""}`}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-bold">{plan.nom}</div>
-                  <div className="text-sm text-gray-500">{plan.description}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-extrabold tabular-nums">{formatFCFA(plan.prix)}</div>
-                  <div className="text-xs text-gray-400">par mois</div>
-                </div>
-              </div>
-              <button
-                disabled={actuel}
-                className={`mt-3 w-full ${actuel ? "btn-secondary" : "btn-primary"}`}
-              >
-                {actuel ? "Plan actuel" : "Choisir ce plan"}
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      {company.statut === "actif" && abonnement?.prochaine_echeance ? (
+        <div className={`card ${echu ? "bg-amber-50" : "bg-green-50"}`}>
+          <div className={`text-sm ${echu ? "text-warning" : "text-success"}`}>
+            {echu ? (
+              <>
+                Votre abonnement est arrivé à échéance le{" "}
+                <strong>{formatDate(abonnement.prochaine_echeance)}</strong>. Renouvelez pour
+                réactiver la saisie.
+              </>
+            ) : (
+              <>
+                Abonnement actif. Prochaine échéance le{" "}
+                <strong>{formatDate(abonnement.prochaine_echeance)}</strong>.
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {lectureSeule && company.statut !== "essai" ? (
+        <div className="card bg-amber-50 text-sm text-warning">
+          Mode lecture seule actif. Choisissez ou renouvelez un plan pour débloquer la saisie.
+        </div>
+      ) : null}
+
+      <BoutonsAbonnement planActuel={company.plan} />
 
       <p className="text-center text-xs text-gray-400">
-        Le paiement de l'abonnement par Mobile Money (FedaPay) sera activé à l'étape 9.
+        Paiement par Mobile Money via FedaPay. Sans clés configurées, l'activation est immédiate
+        (mode démonstration).
       </p>
     </div>
   );

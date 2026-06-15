@@ -38,20 +38,26 @@
   (`/api/fedapay/webhook`), RPC admin idempotente `enregistrer_paiement_admin`,
   page de paiement de secours `/payer/[saleId]`.
 
-### Étape 8 — PWA (socle)
-- Installable, service worker, headers de cache. **À compléter** : sauvegarde locale des
-  formulaires en cours (offline), audit poids 3G.
+### Étape 8 — PWA hors-ligne ✅
+- Service Worker v2 : cache-first assets statiques, network-first pages app,
+  jamais de cache des données Supabase. Page `/offline` de repli.
+- `useFormPersist` : sauvegarde locale (localStorage) des saisies en cours,
+  restaurée à l'ouverture, effacée après succès. Branché sur Nouvelle vente +
+  3 onglets trésorerie. Bundles First Load JS ~88–194 kB.
 
-### Étape 9 — Abonnements (socle)
-- Essai + lecture seule actifs. Page `/app/reglages/abonnement` (UI des plans).
-  **À compléter** : paiement de l'abonnement via FedaPay + relance à l'échéance.
+### Étape 9 — Abonnements ✅
+- Paiement de l'abonnement via FedaPay (lien Mobile Money) + mode démo
+  (activation immédiate sans clés). Webhook route ventes vs abonnements.
+- RPC `activer_abonnement_admin` (migration 0009, service_role uniquement).
+- Blocage doux à l'échéance : `getContexte` passe en lecture seule quand
+  `prochaine_echeance` est dépassée ; bannières + page abonnement adaptées.
+- Changement de mot de passe (Réglages → Mon compte).
 
 ## 🔧 À faire ensuite (ordre conseillé)
 1. **Créer le projet Supabase** et exécuter les migrations (voir `docs/SUPABASE.md`).
 2. Brancher les clés dans `.env.local`, tester l'inscription → onboarding → dashboard.
-3. Compléter étape 8 (offline form + audit perfs) et étape 9 (paiement abonnement).
-4. Import CSV des ventes (format à documenter).
-5. Étape 10 : revue de sécurité complète + déploiement Vercel + domaine.
+3. Tester FedaPay en sandbox (compte requis) puis activer en production.
+4. Étape 10 : revue de sécurité complète + déploiement Vercel + domaine.
 
 ## 🕓 Plus tard (hors MVP — ne pas élargir le périmètre)
 - Import CSV avancé, multi-sites, espace comptable.

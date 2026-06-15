@@ -74,6 +74,61 @@ export async function creerLienPaiement(saleId: string): Promise<string> {
 }
 
 /**
+ * Génère un lien de paiement FedaPay pour un abonnement mensuel.
+ * Repli sans clés (démo) : renvoie `null` — l'appelant active alors directement.
+ * La métadonnée `type: "subscription"` permet au webhook de router la confirmation.
+ */
+export async function creerLienAbonnement(
+  companyId: string,
+  plan: string,
+  montant: number
+): Promise<string | null> {
+  const cle = process.env.FEDAPAY_SECRET_KEY;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  if (!cle) return null;
+
+  const resTx = await fetch(`${BASE_URL}/transactions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${cle}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      description: `Abonnement PILOT ${plan}`,
+      amount: montant,
+      currency: { iso: "XOF" },
+      callback_url: `${appUrl}/api/fedapay/webhook`,
+      custom_metadata: { type: "subscription", company_id: companyId, plan },
+    }),
+  });
+  if (!resTx.ok) throw new Error("FedaPay : création de l'abonnement refusée.");
+  const tx = await resTx.json();
+  const id = tx?.["v1/transaction"]?.id ?? tx?.id;
+
+  const resToken = await fetch(`${BASE_URL}/transactions/${id}/token`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${cle}`, "Content-Type": "application/json" },
+  });
+  if (!resToken.ok) throw new Error("FedaPay : génération du lien refusée.");
+  const tok = await resToken.json();
+  return tok?.url as string;
+}
+
+/**
+ * Active (ou renouvelle) l'abonnement d'une entreprise via la RPC admin.
+ * Utilisé par le webhook (paiement confirmé) et par le mode démo.
+ */
+export async function activerAbonnement(params: {
+  companyId: string;
+  plan: string;
+  montant: number;
+}): Promise<void> {
+  const admin = createAdminClient();
+  await admin.rpc("activer_abonnement_admin", {
+    p_company_id: params.companyId,
+    p_plan: params.plan,
+    p_montant: params.montant,
+  });
+}
+
+/**
  * Traite la confirmation d'un paiement FedaPay (webhook).
  * Marque la vente comme payée et crédite la trésorerie via la RPC
  * enregistrer_paiement (avec le client admin, hors RLS).
