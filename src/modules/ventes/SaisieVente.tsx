@@ -17,6 +17,7 @@ export default function SaisieVente({
   comptes: Compte[];
 }) {
   const [ouvert, setOuvert] = useState(false);
+  const [nouveau, setNouveau] = useState(false);
   const divRef = useRef<HTMLDivElement>(null);
   const { save, restore, clear } = useFormPersist(PERSIST_KEY);
   const today = new Date().toISOString().slice(0, 10);
@@ -51,14 +52,45 @@ export default function SaisieVente({
           libelleSucces="Vente enregistrée."
           onSucces={() => { clear(); setOuvert(false); }}
         >
-          <select name="customer_id" className="input">
-            <option value="">— Client (optionnel) —</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nom}
-              </option>
-            ))}
-          </select>
+          {!nouveau ? (
+            <div className="space-y-1">
+              <select name="customer_id" className="input">
+                <option value="">— Client existant (optionnel) —</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nom}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setNouveau(true)}
+                className="text-xs font-medium text-primary"
+              >
+                + Nouveau client
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2 rounded-xl bg-gray-50 p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-gray-500">Nouveau client</span>
+                <button
+                  type="button"
+                  onClick={() => setNouveau(false)}
+                  className="text-xs text-gray-400"
+                >
+                  Choisir dans la liste
+                </button>
+              </div>
+              <input name="nouveau_client" placeholder="Nom du client" className="input" />
+              <input
+                name="nouveau_telephone"
+                inputMode="tel"
+                placeholder="Téléphone (pour les relances)"
+                className="input"
+              />
+            </div>
+          )}
           <input name="designation" placeholder="Désignation (ex : 10 sacs de ciment)" className="input" />
           <input
             name="montant_total"

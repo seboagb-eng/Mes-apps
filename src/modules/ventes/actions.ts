@@ -15,7 +15,9 @@ export async function creerVente(formData: FormData) {
   const { company, lectureSeule } = await getContexte();
   if (lectureSeule) return { erreur: "Action non autorisée (lecture seule)." };
 
-  const customer_id = String(formData.get("customer_id") || "") || null;
+  let customer_id = String(formData.get("customer_id") || "") || null;
+  const nouveauClient = String(formData.get("nouveau_client") || "").trim();
+  const nouveauTel = String(formData.get("nouveau_telephone") || "").trim() || null;
   const designation = String(formData.get("designation") || "Vente").trim() || "Vente";
   const montant_total = parseInt(String(formData.get("montant_total") || "0"), 10) || 0;
   const montant_paye = Math.min(
@@ -32,13 +34,27 @@ export async function creerVente(formData: FormData) {
     return { erreur: "Choisissez le compte qui reçoit le paiement." };
   }
 
+  const supabase = createClient();
+
+  // Création à la volée d'un nouveau client si un nom est saisi (prioritaire).
+  if (nouveauClient) {
+    const { data: nouveau, error: errClient } = await supabase
+      .from("customers")
+      .insert({ company_id: company.id, nom: nouveauClient, telephone: nouveauTel })
+      .select("id")
+      .single();
+    if (errClient || !nouveau) {
+      return { erreur: errClient?.message ?? "Création du client impossible." };
+    }
+    customer_id = nouveau.id;
+  }
+
   const lignes: LigneVente[] = [
     { produit_id: null, designation, quantite: 1, prix_unitaire: montant_total },
   ];
   const statut: StatutVente =
     montant_paye >= montant_total ? "payee" : montant_paye > 0 ? "partielle" : "impayee";
 
-  const supabase = createClient();
   // 1) Créer la vente sans le paiement (montant_paye recalculé par la RPC).
   const { data: vente, error } = await supabase
     .from("sales")
