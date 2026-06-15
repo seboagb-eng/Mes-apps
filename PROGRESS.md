@@ -53,6 +53,23 @@
   `prochaine_echeance` est dépassée ; bannières + page abonnement adaptées.
 - Changement de mot de passe (Réglages → Mon compte).
 
+### Étape 10 — Revue de sécurité + perfs ✅
+- Audit Supabase (security + performance) passé en revue.
+- Webhook FedaPay **fail-closed** : signature HMAC obligatoire (refus 503 si
+  `FEDAPAY_WEBHOOK_SECRET` absent) — empêche un webhook forgé d'activer un
+  abonnement gratuit / solder une facture.
+- Migration 0010 : index FK (`payments.account_id`, `transactions.sale_id`),
+  initplan RLS sur `users_delete` (`(select auth.uid())`).
+- Isolation multi-tenant re-vérifiée en base (1 company visible, 0 fuite).
+- Confirmé : aucun secret en dur, `.env.local` gitignoré, `.env.example` = placeholders.
+- **Décisions documentées (advisors non bloquants)** :
+  - WARN `auth_company_id`/`auth_role` exécutables : requis par la RLS (révoquer
+    casse tout), fonctions sans argument self-only → aucune fuite. Accepté.
+  - WARN `multiple_permissive_policies` / index inutilisés : optimisations « à
+    l'échelle », différées (base MVP, risque > gain sur prod avec données).
+- **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
+  protection » (Auth → Passwords).
+
 ## 🔧 À faire ensuite (ordre conseillé)
 1. **Créer le projet Supabase** et exécuter les migrations (voir `docs/SUPABASE.md`).
 2. Brancher les clés dans `.env.local`, tester l'inscription → onboarding → dashboard.

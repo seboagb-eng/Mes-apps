@@ -6,22 +6,30 @@ import type { Plan } from "@/lib/types";
 
 /**
  * Webhook FedaPay : confirme un paiement et met à jour la facture + la trésorerie.
- * Sécurité : on vérifie la signature HMAC envoyée dans l'en-tête `x-fedapay-signature`.
+ * Sécurité (fail-closed) : la signature HMAC `x-fedapay-signature` est OBLIGATOIRE.
+ * Sans secret configuré, le webhook refuse tout — sinon un POST forgé pourrait
+ * activer un abonnement gratuit ou marquer une facture payée.
  */
 export async function POST(req: NextRequest) {
   const brut = await req.text();
   const secret = process.env.FEDAPAY_WEBHOOK_SECRET;
   const signature = req.headers.get("x-fedapay-signature") || "";
 
-  if (secret) {
-    const attendu = crypto.createHmac("sha256", secret).update(brut).digest("hex");
-    // Comparaison à temps constant.
-    const ok =
-      signature.length === attendu.length &&
-      crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(attendu));
-    if (!ok) {
-      return NextResponse.json({ erreur: "Signature invalide" }, { status: 401 });
-    }
+  // Fail-closed : pas de secret => on rejette (évite un webhook ouvert en prod).
+  if (!secret) {
+    return NextResponse.json(
+      { erreur: "Webhook non configuré (FEDAPAY_WEBHOOK_SECRET manquant)." },
+      { status: 503 }
+    );
+  }
+
+  const attendu = crypto.createHmac("sha256", secret).update(brut).digest("hex");
+  // Comparaison à temps constant (longueurs égales requises par timingSafeEqual).
+  const ok =
+    signature.length === attendu.length &&
+    crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(attendu));
+  if (!ok) {
+    return NextResponse.json({ erreur: "Signature invalide" }, { status: 401 });
   }
 
   let event: any;
