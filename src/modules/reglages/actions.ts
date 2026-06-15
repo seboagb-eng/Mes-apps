@@ -48,6 +48,33 @@ export async function majEntreprise(formData: FormData) {
   return { ok: true };
 }
 
+/** Change le mot de passe de l'utilisateur connecté. */
+export async function changerMotDePasse(formData: FormData) {
+  const actuel = String(formData.get("actuel") || "");
+  const nouveau = String(formData.get("nouveau") || "");
+  const confirmation = String(formData.get("confirmation") || "");
+
+  if (nouveau.length < 8) return { erreur: "Le nouveau mot de passe doit faire au moins 8 caractères." };
+  if (nouveau !== confirmation) return { erreur: "Les mots de passe ne correspondent pas." };
+
+  const supabase = createClient();
+
+  // Vérifier le mot de passe actuel en tentant une connexion.
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { erreur: "Session expirée. Reconnectez-vous." };
+
+  const { error: errVerif } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: actuel,
+  });
+  if (errVerif) return { erreur: "Mot de passe actuel incorrect." };
+
+  const { error } = await supabase.auth.updateUser({ password: nouveau });
+  if (error) return { erreur: error.message };
+
+  return { ok: true };
+}
+
 /** Invite/crée un utilisateur de l'équipe (placeholder MVP : crée le profil). */
 export async function inviterUtilisateur(formData: FormData) {
   const { utilisateur } = await getContexte();

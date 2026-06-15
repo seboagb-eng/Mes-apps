@@ -5,6 +5,7 @@ import { TitreSection, EtatVide } from "@/components/ui";
 import { formatFCFA } from "@/lib/format";
 import InfosEntreprise from "@/modules/reglages/InfosEntreprise";
 import SaisieProduit from "@/modules/reglages/SaisieProduit";
+import ChangerMotDePasse from "@/modules/reglages/ChangerMotDePasse";
 import { PLANS } from "@/lib/constantes";
 import type { Produit } from "@/lib/types";
 
@@ -41,6 +42,9 @@ export default async function ReglagesPage() {
             <dd className="font-medium capitalize">{utilisateur.role}</dd>
           </div>
         </dl>
+        <div className="mt-4">
+          <ChangerMotDePasse />
+        </div>
       </section>
 
       <section>
