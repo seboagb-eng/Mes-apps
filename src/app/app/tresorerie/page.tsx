@@ -4,6 +4,8 @@ import { LIBELLE_TYPE_COMPTE } from "@/lib/constantes";
 import { formatFCFA, formatDateCourte } from "@/lib/format";
 import CourbeCash from "@/modules/tresorerie/CourbeCash";
 import FormulairesTresorerie from "@/modules/tresorerie/Formulaires";
+import BoutonExportCsv from "@/components/BoutonExportCsv";
+import { exporterTransactionsCSV } from "@/modules/tresorerie/actions";
 import type { Compte } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -86,7 +88,14 @@ export default async function TresoreriePage() {
       <FormulairesTresorerie comptes={comptes} />
 
       <section>
-        <TitreSection>Derniers mouvements</TitreSection>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <TitreSection>Derniers mouvements</TitreSection>
+        </div>
+        {(mouvements ?? []).length > 0 ? (
+          <div className="mb-3">
+            <BoutonExportCsv action={exporterTransactionsCSV} libelle="Exporter la trésorerie (CSV)" />
+          </div>
+        ) : null}
         {derniersMouvements.length === 0 ? (
           <EtatVide texte="Aucun mouvement récent." />
         ) : (

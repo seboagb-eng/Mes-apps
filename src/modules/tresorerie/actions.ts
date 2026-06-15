@@ -57,6 +57,41 @@ export async function ajouterMouvement(formData: FormData) {
   return { ok: true };
 }
 
+/** Exporte les mouvements de trésorerie en CSV (archives / comptable). */
+export async function exporterTransactionsCSV(): Promise<{
+  csv?: string;
+  nom?: string;
+  erreur?: string;
+}> {
+  await getContexte();
+  const { genererCsv } = await import("@/lib/exportCsv");
+  const supabase = createClient();
+
+  const [{ data: mouvements }, { data: comptes }] = await Promise.all([
+    supabase
+      .from("transactions")
+      .select("date, type, categorie, montant, description, account_id")
+      .order("date", { ascending: false }),
+    supabase.from("accounts").select("id, nom"),
+  ]);
+
+  const nomCompte = new Map((comptes ?? []).map((c) => [c.id, c.nom]));
+  const lignes = (mouvements ?? []).map((m) => [
+    m.date,
+    m.type,
+    nomCompte.get(m.account_id) ?? "",
+    m.categorie,
+    m.montant,
+    m.description ?? "",
+  ]);
+
+  const csv = genererCsv(
+    ["date", "type", "compte", "categorie", "montant", "description"],
+    lignes
+  );
+  return { csv, nom: `tresorerie-${new Date().toISOString().slice(0, 10)}.csv` };
+}
+
 /** Transfert d'argent entre deux comptes (RPC atomique). */
 export async function transferer(formData: FormData) {
   const { lectureSeule } = await getContexte();

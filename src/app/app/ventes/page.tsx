@@ -5,6 +5,8 @@ import { formatFCFA, formatDateCourte } from "@/lib/format";
 import SaisieVente from "@/modules/ventes/SaisieVente";
 import ImportCSV from "@/modules/ventes/ImportCSV";
 import Encaisser from "@/modules/recouvrement/Encaisser";
+import BoutonExportCsv from "@/components/BoutonExportCsv";
+import { exporterVentesCSV } from "@/modules/ventes/actions";
 import type { Client, Compte } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -51,7 +53,10 @@ export default async function VentesPage({
       </div>
 
       <SaisieVente clients={listeClients} comptes={(comptes ?? []) as Compte[]} />
-      <ImportCSV comptes={(comptes ?? []) as Compte[]} />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <ImportCSV comptes={(comptes ?? []) as Compte[]} />
+        <BoutonExportCsv action={exporterVentesCSV} libelle="Exporter les ventes (CSV)" />
+      </div>
 
       <div>
         <div className="mb-3 flex gap-2 overflow-x-auto">

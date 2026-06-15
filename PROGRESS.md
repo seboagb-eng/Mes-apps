@@ -53,6 +53,12 @@
   `prochaine_echeance` est dépassée ; bannières + page abonnement adaptées.
 - Changement de mot de passe (Réglages → Mon compte).
 
+### Export CSV comptable ✅
+- Export des ventes (`ventes-AAAA-MM-JJ.csv`) et de la trésorerie
+  (`tresorerie-AAAA-MM-JJ.csv`) depuis leurs pages respectives.
+- Lib pure `exportCsv.ts` (séparateur « ; », CRLF, échappement) + 4 tests.
+  Téléchargement client avec BOM UTF-8 (accents Excel). Symétrique de l'import.
+
 ### Invitation d'équipe ✅
 - Réglages → Équipe (admin uniquement) : liste des membres, invitation (création
   compte auth + profil rattaché à l'entreprise, mot de passe temporaire affiché

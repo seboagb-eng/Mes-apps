@@ -205,6 +205,43 @@ export async function importerVentesCSV(formData: FormData): Promise<{
   return { importees, total: lignes.length, details };
 }
 
+/** Exporte les ventes de l'entreprise en CSV (archives / comptable). */
+export async function exporterVentesCSV(): Promise<{ csv?: string; nom?: string; erreur?: string }> {
+  await getContexte();
+  const { genererCsv } = await import("@/lib/exportCsv");
+  const supabase = createClient();
+
+  const [{ data: ventes }, { data: clients }] = await Promise.all([
+    supabase
+      .from("sales")
+      .select("date, lignes, montant_total, montant_paye, statut, echeance, customer_id")
+      .order("date", { ascending: false }),
+    supabase.from("customers").select("id, nom"),
+  ]);
+
+  const nomClient = new Map((clients ?? []).map((c) => [c.id, c.nom]));
+  const lignes = (ventes ?? []).map((v) => {
+    const designation =
+      Array.isArray(v.lignes) && v.lignes[0]?.designation ? v.lignes[0].designation : "Vente";
+    return [
+      v.date,
+      v.customer_id ? nomClient.get(v.customer_id) ?? "" : "",
+      designation,
+      v.montant_total,
+      v.montant_paye,
+      v.montant_total - v.montant_paye,
+      v.statut,
+      v.echeance ?? "",
+    ];
+  });
+
+  const csv = genererCsv(
+    ["date", "client", "designation", "montant_total", "montant_paye", "reste_du", "statut", "echeance"],
+    lignes
+  );
+  return { csv, nom: `ventes-${new Date().toISOString().slice(0, 10)}.csv` };
+}
+
 /** Crée un client. */
 export async function creerClient(formData: FormData) {
   const { company, lectureSeule } = await getContexte();
