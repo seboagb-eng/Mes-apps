@@ -1,8 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getContexte } from "@/lib/auth";
+import type { RoleUtilisateur } from "@/lib/types";
 
 /** Crée un produit/service du catalogue. */
 export async function creerProduit(formData: FormData) {
@@ -75,13 +76,104 @@ export async function changerMotDePasse(formData: FormData) {
   return { ok: true };
 }
 
-/** Invite/crée un utilisateur de l'équipe (placeholder MVP : crée le profil). */
-export async function inviterUtilisateur(formData: FormData) {
-  const { utilisateur } = await getContexte();
+/** Génère un mot de passe temporaire lisible (≥ 10 caractères). */
+function motDePasseTemporaire(): string {
+  const lettres = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz";
+  const chiffres = "23456789";
+  const pick = (s: string, n: number) =>
+    Array.from({ length: n }, () => s[Math.floor(Math.random() * s.length)]).join("");
+  // Forme : 6 lettres + 3 chiffres + « ! » (toujours ≥ 8 et conforme à la politique).
+  return pick(lettres, 6) + pick(chiffres, 3) + "!";
+}
+
+/**
+ * Crée un membre d'équipe : compte d'authentification + profil rattaché à
+ * l'entreprise de l'admin. Renvoie un mot de passe temporaire à partager
+ * (pas d'envoi d'email — l'admin transmet les identifiants).
+ * Réservé à l'administrateur.
+ */
+export async function inviterUtilisateur(formData: FormData): Promise<{
+  ok?: boolean;
+  erreur?: string;
+  identifiants?: { email: string; motDePasse: string };
+}> {
+  const { company, utilisateur } = await getContexte();
   if (utilisateur.role !== "admin") return { erreur: "Réservé à l'administrateur." };
-  // L'invitation complète (envoi d'email + création auth) viendra en phase 2.
-  return {
-    erreur:
-      "Invitation d'équipe disponible en phase 2. Pour l'instant, partagez vos identifiants ou contactez le support.",
-  };
+
+  const nom = String(formData.get("nom") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const telephone = String(formData.get("telephone") || "").trim() || null;
+  const roleSaisi = String(formData.get("role") || "gestionnaire");
+  const role: RoleUtilisateur = (["gestionnaire", "lecture", "admin"] as const).includes(
+    roleSaisi as RoleUtilisateur
+  )
+    ? (roleSaisi as RoleUtilisateur)
+    : "gestionnaire";
+
+  if (!nom) return { erreur: "Le nom du membre est obligatoire." };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { erreur: "Email invalide." };
+
+  const admin = createAdminClient();
+  const motDePasse = motDePasseTemporaire();
+
+  // 1) Créer le compte d'authentification (email déjà confirmé).
+  const { data: creation, error: errAuth } = await admin.auth.admin.createUser({
+    email,
+    password: motDePasse,
+    email_confirm: true,
+    user_metadata: { nom, telephone },
+  });
+  if (errAuth || !creation?.user) {
+    const msg = errAuth?.message ?? "";
+    if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+      return { erreur: "Cet email a déjà un compte." };
+    }
+    return { erreur: "Création du compte impossible : " + (msg || "erreur inconnue") };
+  }
+
+  // 2) Créer le profil rattaché à l'entreprise de l'admin.
+  const { error: errProfil } = await admin.from("users").insert({
+    id: creation.user.id,
+    company_id: company.id,
+    nom,
+    telephone,
+    email,
+    role,
+  });
+  if (errProfil) {
+    // Rollback : supprimer le compte auth orphelin.
+    await admin.auth.admin.deleteUser(creation.user.id);
+    return { erreur: "Création du profil impossible : " + errProfil.message };
+  }
+
+  revalidatePath("/app/reglages");
+  return { ok: true, identifiants: { email, motDePasse } };
+}
+
+/** Retire un membre de l'équipe (compte auth + profil). Admin uniquement. */
+export async function retirerMembre(formData: FormData) {
+  const { company, utilisateur } = await getContexte();
+  if (utilisateur.role !== "admin") return { erreur: "Réservé à l'administrateur." };
+
+  const id = String(formData.get("id") || "");
+  if (!id) return { erreur: "Membre introuvable." };
+  if (id === utilisateur.id) return { erreur: "Vous ne pouvez pas vous retirer vous-même." };
+
+  const admin = createAdminClient();
+  // Vérifier que le membre appartient bien à l'entreprise de l'admin.
+  const { data: membre } = await admin
+    .from("users")
+    .select("id, company_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (!membre || membre.company_id !== company.id) {
+    return { erreur: "Membre introuvable dans votre entreprise." };
+  }
+
+  // La suppression du compte auth supprime le profil en cascade (FK on delete cascade).
+  const { error } = await admin.auth.admin.deleteUser(id);
+  if (error) return { erreur: "Suppression impossible : " + error.message };
+
+  revalidatePath("/app/reglages");
+  return { ok: true };
 }

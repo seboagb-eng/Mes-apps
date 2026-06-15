@@ -53,6 +53,14 @@
   `prochaine_echeance` est dépassée ; bannières + page abonnement adaptées.
 - Changement de mot de passe (Réglages → Mon compte).
 
+### Invitation d'équipe ✅
+- Réglages → Équipe (admin uniquement) : liste des membres, invitation (création
+  compte auth + profil rattaché à l'entreprise, mot de passe temporaire affiché
+  une fois), retrait d'un membre (suppression auth → profil en cascade).
+- Rôles : gestionnaire / lecture / admin. Garde-fous : admin only, rattachement
+  forcé au `company_id` de l'admin, rollback du compte auth si le profil échoue,
+  impossible de se retirer soi-même.
+
 ### Étape 10 — Revue de sécurité + perfs ✅
 - Audit Supabase (security + performance) passé en revue.
 - Webhook FedaPay **fail-closed** : signature HMAC obligatoire (refus 503 si
@@ -80,7 +88,7 @@
 - Import CSV avancé, multi-sites, espace comptable.
 - Assistant IA (API Anthropic). App Flutter native.
 - Envoi WhatsApp automatique programmé (API WhatsApp Business).
-- Invitation d'équipe complète (création auth + email) — placeholder actuel en réglages.
+- Envoi d'email d'invitation automatique (actuellement : identifiants partagés à la main).
 - Branchement source automatique des ventes (MECeF / DGI).
 
 ## ⚠️ Notes techniques

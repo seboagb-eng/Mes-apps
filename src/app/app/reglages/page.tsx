@@ -6,16 +6,21 @@ import { formatFCFA } from "@/lib/format";
 import InfosEntreprise from "@/modules/reglages/InfosEntreprise";
 import SaisieProduit from "@/modules/reglages/SaisieProduit";
 import ChangerMotDePasse from "@/modules/reglages/ChangerMotDePasse";
+import Equipe from "@/modules/reglages/Equipe";
 import { PLANS } from "@/lib/constantes";
-import type { Produit } from "@/lib/types";
+import type { Produit, Utilisateur } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReglagesPage() {
   const { company, utilisateur } = await getContexte();
   const supabase = createClient();
-  const { data: produits } = await supabase.from("products").select("*").order("nom");
+  const [{ data: produits }, { data: membres }] = await Promise.all([
+    supabase.from("products").select("*").order("nom"),
+    supabase.from("users").select("*").order("created_at"),
+  ]);
   const liste = (produits ?? []) as Produit[];
+  const equipe = (membres ?? []) as Utilisateur[];
 
   return (
     <div className="space-y-6">
@@ -46,6 +51,13 @@ export default async function ReglagesPage() {
           <ChangerMotDePasse />
         </div>
       </section>
+
+      {utilisateur.role === "admin" ? (
+        <section>
+          <h3 className="mb-3 font-bold">Équipe</h3>
+          <Equipe membres={equipe} moiId={utilisateur.id} />
+        </section>
+      ) : null}
 
       <section>
         <div className="mb-3 flex items-center justify-between">
