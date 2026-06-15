@@ -53,6 +53,11 @@
   `prochaine_echeance` est dépassée ; bannières + page abonnement adaptées.
 - Changement de mot de passe (Réglages → Mon compte).
 
+### Reçu de paiement ✅
+- Après un encaissement (recouvrement), bouton « Envoyer le reçu (WhatsApp) » :
+  reçu texte (entreprise, client, montant, mode, date, reste/soldé).
+- Lib pure `recu.ts` + 2 tests. Pas de PDF (léger, WhatsApp-first).
+
 ### Export CSV comptable ✅
 - Export des ventes (`ventes-AAAA-MM-JJ.csv`) et de la trésorerie
   (`tresorerie-AAAA-MM-JJ.csv`) depuis leurs pages respectives.

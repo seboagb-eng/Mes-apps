@@ -118,7 +118,14 @@ export default async function RecouvrementPage() {
                 </div>
 
                 <div className="mt-2 flex flex-wrap justify-end gap-2">
-                  <Encaisser saleId={c.id} resteDu={c.du} comptes={comptes} />
+                  <Encaisser
+                    saleId={c.id}
+                    resteDu={c.du}
+                    comptes={comptes}
+                    nomEntreprise={company.nom}
+                    nomClient={client?.nom ?? "cher client"}
+                    telephoneClient={client?.telephone ?? null}
+                  />
                   <Relancer
                     saleId={c.id}
                     nomEntreprise={company.nom}
