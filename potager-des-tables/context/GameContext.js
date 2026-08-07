@@ -8,6 +8,7 @@ export function GameProvider({ children }) {
     classe: 'ce2',
     xp: 0,
     etoiles: { 2: 1, 3: 3, 5: 2 },
+    meilleurChrono: 0,
     compagnon: 'uno',
     amis: ['uno', 'youmi', 'jazz']
   });

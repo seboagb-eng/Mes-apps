@@ -23,7 +23,7 @@ export default function Accueil() {
         <span>Mon potager<small>Apprendre et s'entraîner</small></span>
       </button>
 
-      <button className="btn jaune">
+      <button className="btn jaune" onClick={() => router.push('/defi')}>
         <span className="rond">⚡</span>
         <span>Défi du chrono<small>60 secondes, toutes tes tables</small></span>
       </button>
