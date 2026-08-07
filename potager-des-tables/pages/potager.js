@@ -13,7 +13,7 @@ export default function Potager() {
 
       <div className="parcelles">
         {tables.map(t => (
-          <button key={t} className="parcelle" onClick={() => alert(`La table de ${t} va se lancer !`)}>
+          <button key={t} className="parcelle" onClick={() => router.push(`/jeu/${t}`)}>
             <span>table de</span>
             <b style={{color: '#2E9E5B'}}>{t}</b>
             <div style={{marginTop: 6, fontSize: 10, fontWeight: 900, opacity: 0.6}}>

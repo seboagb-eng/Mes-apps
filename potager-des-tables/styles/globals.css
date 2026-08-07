@@ -40,3 +40,11 @@ h2{font-family:'Fredoka',sans-serif;font-size:22px;margin:4px 0 10px}
 .parcelle{position:relative;border:0;padding:10px 6px 8px;border-radius:18px;cursor:pointer;background:linear-gradient(180deg,#F7EBD2,#E7D3AE);box-shadow:0 5px 0 #C6AC80;overflow:hidden}
 .parcelle b{font-family:'Fredoka',sans-serif;font-size:26px;display:block;line-height:1}
 .parcelle span{font-size:10px;font-weight:900;letter-spacing:1px;opacity:.6;text-transform:uppercase}
+.progress{height:10px;border-radius:6px;background:rgba(20,81,47,.12);overflow:hidden;margin:2px 0 14px}
+.progress > div{height:100%;background:var(--feuille);border-radius:6px;transition:width .25s ease}
+.question{font-family:'Fredoka',sans-serif;font-size:44px;text-align:center;margin:6px 0 22px;color:var(--feuille-fonce)}
+.reponses{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.reponse{border:0;padding:20px 10px;border-radius:18px;font-family:'Fredoka',sans-serif;font-size:26px;background:#fff;box-shadow:0 5px 0 rgba(20,81,47,.16);cursor:pointer;color:var(--feuille-fonce)}
+.reponse:active{transform:translateY(4px);box-shadow:none}
+.reponse.correcte{background:var(--feuille);color:#fff;box-shadow:0 5px 0 var(--feuille-fonce)}
+.reponse.fausse{background:var(--coquelicot);color:#fff;box-shadow:0 5px 0 #A8371A}
