@@ -6,6 +6,7 @@ import Mascotte from '../components/Mascotte';
 import { getNiveau } from '../lib/niveaux';
 import { genererQuestionAleatoire } from '../lib/questions';
 import { XP } from '../lib/progression';
+import { sonBon, sonMauvais, sonVictoire } from '../lib/sons';
 
 export default function Defi() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function Defi() {
       const xpGagnee = score * XP.bonneReponseChrono;
       const record = Math.max(state.meilleurChrono?.[niveau.id] || 0, score);
       enregistrerChrono(niveau.id, score, xpGagnee);
+      sonVictoire(state.son);
       setResultat({ score, record, xp: xpGagnee });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,6 +83,7 @@ export default function Defi() {
       setSerie(0);
     }
     setEtatMascotte(correct ? 'joie' : 'oups');
+    if (correct) sonBon(state.son); else sonMauvais(state.son);
 
     setTimeout(() => {
       setQuestion(genererQuestionAleatoire(niveau.tables, niveau.maxN));

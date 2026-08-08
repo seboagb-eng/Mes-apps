@@ -9,8 +9,15 @@ const ETAT_INITIAL = {
   xp: 0,
   etoiles: { 2: 1, 3: 3, 5: 2 },
   meilleurChrono: {}, // { [classeId]: meilleurScore }
+  son: true,
+  serieJours: 0,
+  derniereDate: null, // 'YYYY-MM-DD' local
   onboarded: false,
 };
+
+function jourLocal(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 const GameContext = createContext();
 
@@ -56,6 +63,19 @@ export function GameProvider({ children }) {
     [persister]
   );
 
+  // Met à jour la série de jours consécutifs (une fois par jour).
+  const enregistrerVisite = useCallback(
+    () =>
+      persister((prev) => {
+        const aujourdhui = jourLocal(new Date());
+        if (prev.derniereDate === aujourdhui) return prev;
+        const hier = jourLocal(new Date(Date.now() - 86400000));
+        const serie = prev.derniereDate === hier ? (prev.serieJours || 0) + 1 : 1;
+        return { ...prev, derniereDate: aujourdhui, serieJours: serie };
+      }),
+    [persister]
+  );
+
   const enregistrerEntrainement = useCallback(
     (table, etoilesGagnees, xpGagnee) =>
       persister((prev) => ({
@@ -81,7 +101,7 @@ export function GameProvider({ children }) {
 
   return (
     <GameContext.Provider
-      value={{ state, charge, saveState: persister, setProfil, enregistrerEntrainement, enregistrerChrono }}
+      value={{ state, charge, saveState: persister, setProfil, enregistrerVisite, enregistrerEntrainement, enregistrerChrono }}
     >
       {children}
     </GameContext.Provider>

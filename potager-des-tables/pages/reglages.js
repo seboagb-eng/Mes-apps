@@ -44,6 +44,15 @@ export default function Reglages() {
         ))}
       </div>
 
+      <label className="champ-label">Son et vibrations</label>
+      <button
+        className={`chip ${state.son ? 'actif' : ''}`}
+        onClick={() => setProfil({ son: !state.son })}
+        aria-pressed={state.son}
+      >
+        {state.son ? '🔊 Activés' : '🔇 Coupés'}
+      </button>
+
       <button className="btn" onClick={enregistrer} style={{ marginTop: 16 }}>
         Enregistrer
       </button>

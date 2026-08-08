@@ -60,7 +60,11 @@ h2{font-family:'Fredoka',sans-serif;font-size:22px;margin:4px 0 10px}
 .xp-barre>div{height:100%;background:linear-gradient(90deg,var(--feuille-clair),var(--feuille));border-radius:6px;transition:width .3s ease}
 .accueil-mascotte{display:flex;align-items:center;gap:8px;margin:12px 0 18px}
 
+/* ---- Série de jours ---- */
+.streak{align-self:flex-start;background:var(--soleil);color:var(--terre-fonce);font-weight:900;font-size:12px;padding:4px 12px;border-radius:12px;margin:4px 0 2px}
+
 /* ---- Jeu ---- */
+.consigne{text-align:center;font-weight:800;font-size:13px;opacity:.7;height:16px}
 .feedback{text-align:center;height:22px;font-family:'Fredoka',sans-serif;font-size:18px;color:var(--feuille-fonce)}
 .deblocage{margin-top:12px;background:var(--creme);border-radius:16px;padding:12px 14px;text-align:center;font-weight:800;font-size:14px;box-shadow:0 5px 0 rgba(20,81,47,.14)}
 .score-ligne{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:800;font-size:14px;opacity:.85;margin-bottom:4px}

@@ -15,12 +15,17 @@ const PHRASES = [
 
 export default function Accueil() {
   const router = useRouter();
-  const { state, charge } = useGame();
+  const { state, charge, enregistrerVisite } = useGame();
   const [phrase, setPhrase] = useState(PHRASES[0]);
 
   useEffect(() => {
     if (charge && !state.onboarded) router.replace('/bienvenue');
   }, [charge, state.onboarded, router]);
+
+  useEffect(() => {
+    if (charge && state.onboarded) enregistrerVisite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [charge]);
 
   useEffect(() => {
     setPhrase(PHRASES[Math.floor(Math.random() * PHRASES.length)]);
@@ -50,6 +55,10 @@ export default function Accueil() {
         </button>
       </div>
       <div className="xp-barre" aria-hidden="true"><div style={{ width: `${Math.round(prog.ratio * 100)}%` }} /></div>
+
+      {state.serieJours > 0 && (
+        <div className="streak">🔥 {state.serieJours} jour{state.serieJours > 1 ? 's' : ''} d'affilée</div>
+      )}
 
       <div className="accueil-mascotte">
         <Mascotte animalId={state.compagnon} />

@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../../context/GameContext';
 import Mascotte from '../../components/Mascotte';
 import { getNiveau } from '../../lib/niveaux';
-import { genererSerie, calculerEtoiles } from '../../lib/questions';
-import { COMPAGNONS, getCompagnon, totalEtoiles } from '../../lib/compagnons';
+import { genererSerie, estCorrect, calculerEtoiles } from '../../lib/questions';
+import { COMPAGNONS, totalEtoiles } from '../../lib/compagnons';
 import { XP } from '../../lib/progression';
+import { sonBon, sonMauvais, sonVictoire } from '../../lib/sons';
 
 const NB_QUESTIONS = 10;
 const BRAVOS = ['Bravo !', 'Super !', 'Génial !', 'Bien joué !', 'Parfait !'];
@@ -24,13 +25,18 @@ export default function Jeu() {
   const [etatMascotte, setEtatMascotte] = useState('attente');
   const [message, setMessage] = useState('');
   const [verrouille, setVerrouille] = useState(false);
-  const [choixSelectionne, setChoixSelectionne] = useState(null);
+  const [choix, setChoix] = useState(null);
   const [resultat, setResultat] = useState(null);
 
   useEffect(() => {
     if (table) setQuestions(genererSerie([table], niveau.maxN, NB_QUESTIONS));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table]);
+
+  useEffect(() => {
+    if (resultat) sonVictoire(state.son);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultat]);
 
   if (!router.isReady || !table || !questions) {
     return <div className="ecran"><h2>Chargement…</h2></div>;
@@ -43,7 +49,7 @@ export default function Jeu() {
     setEtatMascotte('attente');
     setMessage('');
     setVerrouille(false);
-    setChoixSelectionne(null);
+    setChoix(null);
     setResultat(null);
   };
 
@@ -74,23 +80,20 @@ export default function Jeu() {
 
   const question = questions[index];
 
-  const repondre = (proposition) => {
+  const repondre = (valeur) => {
     if (verrouille) return;
     setVerrouille(true);
-    setChoixSelectionne(proposition);
-    const correct = proposition === question.bonneReponse;
+    setChoix(valeur);
+    const correct = estCorrect(question, valeur);
     if (correct) scoreRef.current += 1;
     setEtatMascotte(correct ? 'joie' : 'oups');
-    setMessage(
-      correct
-        ? BRAVOS[Math.floor(Math.random() * BRAVOS.length)]
-        : ENCOURAGE[Math.floor(Math.random() * ENCOURAGE.length)]
-    );
+    setMessage((correct ? BRAVOS : ENCOURAGE)[Math.floor(Math.random() * BRAVOS.length)]);
+    if (correct) sonBon(state.son); else sonMauvais(state.son);
 
     setTimeout(() => {
       if (index + 1 < questions.length) {
         setIndex((i) => i + 1);
-        setChoixSelectionne(null);
+        setChoix(null);
         setEtatMascotte('attente');
         setMessage('');
         setVerrouille(false);
@@ -99,18 +102,24 @@ export default function Jeu() {
         const etoilesGagnees = calculerEtoiles(score, questions.length);
         const etoilesRecord = Math.max(state.etoiles[table] || 0, etoilesGagnees);
         const xpGagnee = score * XP.bonneReponse + (etoilesGagnees === 3 ? XP.bonusSansFaute : 0);
-
         const ancienTotal = totalEtoiles(state.etoiles);
         const nouveauTotal = totalEtoiles({ ...state.etoiles, [table]: etoilesRecord });
-        const debloque = COMPAGNONS.find(
-          (c) => c.seuil > 0 && c.seuil > ancienTotal && c.seuil <= nouveauTotal
-        );
-
+        const debloque = COMPAGNONS.find((c) => c.seuil > 0 && c.seuil > ancienTotal && c.seuil <= nouveauTotal);
         enregistrerEntrainement(table, etoilesGagnees, xpGagnee);
         setResultat({ score, etoiles: etoilesRecord, xp: xpGagnee, debloque });
       }
     }, 900);
   };
+
+  const enonce =
+    question.type === 'vraifaux'
+      ? `${question.table} × ${question.n} = ${question.affiche}`
+      : question.type === 'trou'
+        ? `${question.table} × ? = ${question.produit}`
+        : `${question.table} × ${question.n} = ?`;
+
+  const consigne =
+    question.type === 'vraifaux' ? 'Vrai ou faux ?' : question.type === 'trou' ? 'Trouve le nombre manquant' : ' ';
 
   return (
     <div className="ecran">
@@ -120,7 +129,7 @@ export default function Jeu() {
       <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 2px' }}>
         <Mascotte animalId={state.compagnon} etatReponse={etatMascotte} />
       </div>
-      <div className="feedback" aria-live="polite">{message || ' '}</div>
+      <div className="feedback" aria-live="polite">{message || ' '}</div>
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -130,20 +139,36 @@ export default function Jeu() {
           exit={{ opacity: 0, x: -30 }}
           transition={{ duration: 0.2 }}
         >
-          <div className="question">{table} × {question.n} = ?</div>
+          <div className="consigne">{consigne}</div>
+          <div className="question">{enonce}</div>
 
-          <div className="reponses">
-            {question.propositions.map((p) => {
-              let classe = 'reponse';
-              if (verrouille && p === question.bonneReponse) classe += ' correcte';
-              else if (verrouille && p === choixSelectionne) classe += ' fausse';
-              return (
-                <button key={p} className={classe} onClick={() => repondre(p)} disabled={verrouille}>
-                  {p}
-                </button>
-              );
-            })}
-          </div>
+          {question.type === 'vraifaux' ? (
+            <div className="reponses">
+              {[true, false].map((v) => {
+                let classe = 'reponse';
+                if (verrouille && v === question.estVrai) classe += ' correcte';
+                else if (verrouille && v === choix) classe += ' fausse';
+                return (
+                  <button key={String(v)} className={classe} onClick={() => repondre(v)} disabled={verrouille}>
+                    {v ? 'Vrai' : 'Faux'}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="reponses">
+              {question.propositions.map((p) => {
+                let classe = 'reponse';
+                if (verrouille && p === question.bonneReponse) classe += ' correcte';
+                else if (verrouille && p === choix) classe += ' fausse';
+                return (
+                  <button key={p} className={classe} onClick={() => repondre(p)} disabled={verrouille}>
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
 

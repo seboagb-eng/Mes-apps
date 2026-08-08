@@ -1,4 +1,7 @@
 // Génération des questions de multiplication, partagée par l'entraînement et le défi.
+// Trois types de mini-jeux : QCM, vrai/faux, et nombre manquant.
+
+export const TYPES = ['qcm', 'vraifaux', 'trou'];
 
 export function melanger(tableau) {
   const copie = [...tableau];
@@ -18,37 +21,74 @@ function propositionsPour(bonneReponse, table) {
     const candidat = bonneReponse + ecarts[Math.floor(Math.random() * ecarts.length)];
     if (candidat > 0 && candidat !== bonneReponse) propositions.add(candidat);
   }
-  // Filet de sécurité pour les très petits produits (peu de distracteurs possibles).
   let extra = 1;
   while (propositions.size < 4) {
     if (bonneReponse - extra > 0) propositions.add(bonneReponse - extra);
     propositions.add(bonneReponse + extra);
     extra++;
   }
-  // bonneReponse est inséré en premier : slice(0,4) la conserve toujours.
   return melanger([...propositions].slice(0, 4));
 }
 
-export function genererQuestion(table, n) {
-  const bonneReponse = table * n;
-  return { table, n, bonneReponse, propositions: propositionsPour(bonneReponse, table) };
+function produitFaux(produit, table) {
+  const ecarts = [table, -table, 1, -1, 2, -2];
+  for (let k = 0; k < 20; k++) {
+    const c = produit + ecarts[Math.floor(Math.random() * ecarts.length)];
+    if (c > 0 && c !== produit) return c;
+  }
+  return produit + 1;
 }
 
-// Série d'entraînement : pour une ou plusieurs tables, multiplicandes mélangés dans 1..maxN.
-export function genererSerie(tables, maxN, nb) {
+function multiplicandesFaux(n, maxN) {
+  const props = new Set([n]);
+  const ecarts = [1, -1, 2, -2];
+  let tentatives = 0;
+  while (props.size < 4 && tentatives < 40) {
+    tentatives++;
+    const c = n + ecarts[Math.floor(Math.random() * ecarts.length)];
+    if (c > 0 && c <= Math.max(maxN, 12)) props.add(c);
+  }
+  let extra = 3;
+  while (props.size < 4) { props.add(extra); extra++; }
+  return melanger([...props].slice(0, 4));
+}
+
+export function genererQuestion(table, n, maxN = 10, typesAutorises = TYPES) {
+  const type = typesAutorises[Math.floor(Math.random() * typesAutorises.length)];
+  const produit = table * n;
+
+  if (type === 'vraifaux') {
+    const estVrai = Math.random() < 0.5;
+    const affiche = estVrai ? produit : produitFaux(produit, table);
+    return { type, table, n, produit, affiche, estVrai };
+  }
+  if (type === 'trou') {
+    return { type, table, n, produit, bonneReponse: n, propositions: multiplicandesFaux(n, maxN) };
+  }
+  return { type: 'qcm', table, n, produit, bonneReponse: produit, propositions: propositionsPour(produit, table) };
+}
+
+// Série d'entraînement : une ou plusieurs tables, multiplicandes mélangés dans 1..maxN, types variés.
+export function genererSerie(tables, maxN, nb, typesAutorises = TYPES) {
   const multiplicandes = melanger(Array.from({ length: maxN }, (_, i) => i + 1));
   const total = Math.min(nb, multiplicandes.length);
   return multiplicandes.slice(0, total).map((n) => {
     const table = tables[Math.floor(Math.random() * tables.length)];
-    return genererQuestion(table, n);
+    return genererQuestion(table, n, maxN, typesAutorises);
   });
 }
 
-// Question aléatoire (défi chrono) piochée dans les tables du niveau.
+// Question aléatoire du défi chrono : QCM uniquement (rythme rapide).
 export function genererQuestionAleatoire(tables, maxN) {
   const table = tables[Math.floor(Math.random() * tables.length)];
   const n = Math.floor(Math.random() * maxN) + 1;
-  return genererQuestion(table, n);
+  return genererQuestion(table, n, maxN, ['qcm']);
+}
+
+// Vérifie une réponse quel que soit le type de question.
+export function estCorrect(question, valeur) {
+  if (question.type === 'vraifaux') return valeur === question.estVrai;
+  return valeur === question.bonneReponse;
 }
 
 export function calculerEtoiles(score, total) {
