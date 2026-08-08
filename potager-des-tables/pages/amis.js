@@ -13,7 +13,7 @@ export default function Amis() {
   return (
     <div className="ecran">
       <h2>Mes amis</h2>
-      <p className="sous-titre">Récolte des étoiles pour débloquer de nouveaux compagnons · {total} ⭐</p>
+      <p className="sous-titre">Gagne des étoiles pour rallier de nouveaux compagnons d'expédition · {total} ⭐</p>
 
       <div className="cartes-amis">
         {COMPAGNONS.map((c) => {

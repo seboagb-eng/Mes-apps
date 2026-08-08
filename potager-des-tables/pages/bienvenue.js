@@ -18,7 +18,7 @@ export default function Bienvenue() {
 
   return (
     <div className="ecran">
-      <h1><em>Le potager des</em>Tables</h1>
+      <h1><em>L'expédition des</em>Tables</h1>
 
       <div style={{ display: 'flex', justifyContent: 'center', margin: '6px 0' }}>
         <Mascotte animalId="uno" etatReponse="joie" />

@@ -4,13 +4,13 @@ import { useGame } from '../context/GameContext';
 import Mascotte from '../components/Mascotte';
 import { getNiveau } from '../lib/niveaux';
 import { getCompagnon, COMPAGNONS, totalEtoiles, estDebloque } from '../lib/compagnons';
-import { niveauJardinier } from '../lib/progression';
+import { niveauExplorateur } from '../lib/progression';
 
 const PHRASES = [
-  'On fait pousser des tables ?',
+  'On part explorer les tables ?',
   'Viens récolter des étoiles !',
   'On s’entraîne un peu ?',
-  'Prêt pour une belle récolte ?',
+  'Prêt pour une nouvelle expédition ?',
 ];
 
 export default function Accueil() {
@@ -31,14 +31,14 @@ export default function Accueil() {
   }
 
   const niveau = getNiveau(state.classe);
-  const prog = niveauJardinier(state.xp);
+  const prog = niveauExplorateur(state.xp);
   const compagnon = getCompagnon(state.compagnon);
   const total = totalEtoiles(state.etoiles);
   const nbDebloques = COMPAGNONS.filter((c) => estDebloque(c, state.etoiles)).length;
 
   return (
     <div className="ecran">
-      <h1><em>Le potager des</em>Tables</h1>
+      <h1><em>L'expédition des</em>Tables</h1>
 
       <div className="profil">
         <div>
@@ -59,9 +59,9 @@ export default function Accueil() {
         </div>
       </div>
 
-      <button className="btn" onClick={() => router.push('/potager')}>
-        <span className="rond">🌸</span>
-        <span>Mon potager<small>Apprendre et s'entraîner</small></span>
+      <button className="btn" onClick={() => router.push('/carte')}>
+        <span className="rond">🗺️</span>
+        <span>Explorer la jungle<small>Apprendre et s'entraîner</small></span>
       </button>
 
       <button className="btn jaune" onClick={() => router.push('/defi')}>

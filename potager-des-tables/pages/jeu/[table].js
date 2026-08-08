@@ -67,7 +67,7 @@ export default function Jeu() {
           </div>
         )}
         <button className="btn" onClick={rejouer} style={{ marginTop: 16 }}>Rejouer</button>
-        <button className="btn pale" onClick={() => router.push('/potager')}>Retour au potager</button>
+        <button className="btn pale" onClick={() => router.push('/carte')}>Retour à la carte</button>
       </div>
     );
   }
@@ -147,7 +147,7 @@ export default function Jeu() {
         </motion.div>
       </AnimatePresence>
 
-      <button className="btn pale" onClick={() => router.push('/potager')} style={{ marginTop: 'auto' }}>
+      <button className="btn pale" onClick={() => router.push('/carte')} style={{ marginTop: 'auto' }}>
         Quitter
       </button>
     </div>

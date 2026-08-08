@@ -1,4 +1,4 @@
-// Les compagnons du potager. Chaque animal se débloque en récoltant des étoiles :
+// Les compagnons d'expédition. Chaque animal se débloque en gagnant des étoiles :
 // une petite collection qui grandit avec l'enfant et donne envie de progresser.
 
 export const COMPAGNONS = [
