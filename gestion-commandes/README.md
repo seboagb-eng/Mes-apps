@@ -13,8 +13,8 @@ Enregistrez vos commandes, envoyez le **bon de commande au magasinier par WhatsA
 | **Tableau de bord** | Chiffre du jour / du mois, crédits en cours, valeur du stock, alertes de rupture |
 | **Commandes** | Créer une commande (client, articles, quantités, prix, remise, acompte), suivre son statut |
 | **Vente au poids** | Quantités **décimales** (ex. 2,5 kg) — le montant se calcule automatiquement |
-| **Bon de commande** | Génère un message propre et l'envoie au **magasinier via WhatsApp** en un clic |
-| **Factures** | Facture professionnelle **A4 (PDF)** ou **reçu/ticket pour imprimante portable (58/80 mm)**, ou envoi WhatsApp |
+| **Bon de commande** | Envoi au **magasinier par WhatsApp** en un clic, **et impression** (A4 ou ticket portable) — liste de préparation avec cases à cocher |
+| **Factures & reçus** | **Impression au choix : A4 (PDF), ticket 80 mm ou 58 mm** (imprimante portable), ou envoi WhatsApp — sélecteur de format sur la page d'impression |
 | **Stock** | Produits avec prix d'achat/vente, stock déduit automatiquement à la livraison, seuil d'alerte, réapprovisionnement |
 | **Péremption** | Dates d'**arrivage** et de **péremption** (poisson congelé/périssable) + **alerte** avant expiration |
 | **Clients** | Répertoire clients avec téléphone, accès WhatsApp direct |
@@ -46,10 +46,10 @@ Enregistrez vos commandes, envoyez le **bon de commande au magasinier par WhatsA
 2. Dans **📦 Stock**, ajoutez vos produits (les exemples fournis peuvent être supprimés).
 3. Créez votre première commande avec **➕ Nouvelle commande**.
 
-> 🖨️ **Imprimante portable** : dans le détail d'une commande, touchez
-> *« Imprimer reçu (imprimante portable) »*. Choisissez la largeur (58 ou 80 mm),
-> puis imprimez via votre imprimante Bluetooth appairée au téléphone. Le format
-> A4 (PDF) reste disponible pour une facture complète.
+> 🖨️ **Impression** : dans le détail d'une commande, touchez *« Imprimer le bon
+> de commande »* ou *« Imprimer la facture / le reçu »*. Sur la page qui s'ouvre,
+> choisissez le **format** (A4 pour une feuille/PDF, ou ticket **80 mm / 58 mm**
+> pour une imprimante Bluetooth portable), puis **Imprimer**.
 
 > 💡 **Sauvegarde** : les données vivent sur le téléphone. Faites régulièrement
 > *Réglages → Sauvegarde → Télécharger une sauvegarde* et gardez le fichier

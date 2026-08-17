@@ -55,6 +55,8 @@ remettre une **facture** au client, et **savoir où en est son stock**.
 ### 4.3 Bon de commande (magasinier)
 - Génère un **message texte structuré** listant les articles et quantités.
 - Envoi en un clic vers le **numéro WhatsApp du magasinier** (réglages).
+- **Impression** (A4 ou ticket 80/58 mm) : liste de préparation avec cases à
+  cocher, note et espaces de signature.
 
 ### 4.4 Factures & reçus (client)
 - Facture professionnelle **A4** : logo, coordonnées, lignes, totaux, remise,

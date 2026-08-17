@@ -69,10 +69,13 @@ dates en français, normalisation des numéros WhatsApp (numéro local béninois
 8 chiffres → préfixe `229`), ouverture de `wa.me`, libellés, échappement HTML.
 
 ### 3. Documents — `js/documents.js`
-`window.Docs` génère :
-- **Bon de commande** : message texte WhatsApp pour le magasinier.
-- **Facture** : résumé texte WhatsApp **et** page HTML imprimable (→ PDF via le
-  navigateur). Encapsulé dans une IIFE pour ne pas polluer la portée globale.
+`window.Docs` génère (encapsulé dans une IIFE) :
+- **Messages WhatsApp** texte : bon de commande (magasinier) et facture (client).
+- **Page d'impression unifiée** (`pageImpression`) : une seule page contient à la
+  fois le rendu **A4** et le rendu **ticket**, avec un **sélecteur de format**
+  (A4 / 80 mm / 58 mm) qui bascule l'affichage et la règle `@page`. Utilisée pour
+  la **facture/reçu** comme pour le **bon de commande** (liste de préparation avec
+  cases à cocher). Repli via iframe caché si les pop-ups sont bloqués.
 
 ### 4. Interface — `js/app.js`
 Encapsulé dans une IIFE, expose `window.App`. Contient :

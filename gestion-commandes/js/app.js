@@ -423,10 +423,10 @@
       <section class="bloc">
         <h2>Documents</h2>
         <div class="grille-boutons">
-          <button class="btn-wa" onclick="App.envoyerBonCommande('${o.id}')">📦 Bon de commande → Magasinier</button>
+          <button class="btn-wa" onclick="App.envoyerBonCommande('${o.id}')">📦 Bon de commande → Magasinier (WhatsApp)</button>
+          <button class="btn-secondaire" onclick="App.imprimerBon('${o.id}')">🖨️ Imprimer le bon de commande</button>
           <button class="btn-wa" onclick="App.envoyerFacture('${o.id}')">🧾 Facture → Client (WhatsApp)</button>
-          <button class="btn-secondaire" onclick="App.imprimerRecu('${o.id}')">🧾 Imprimer reçu (imprimante portable)</button>
-          <button class="btn-secondaire" onclick="App.imprimerFacture('${o.id}')">🖨️ Facture A4 (PDF / Imprimer)</button>
+          <button class="btn-secondaire" onclick="App.imprimerFacture('${o.id}')">🖨️ Imprimer la facture / le reçu</button>
         </div>
       </section>
 
@@ -467,10 +467,9 @@
     vueDetail(id);
   };
 
-  App.imprimerRecu = (id) => {
-    const o = Commandes.genererFacture(id);
-    Docs.imprimerRecu(o);
-    vueDetail(id);
+  App.imprimerBon = (id) => {
+    const o = Commandes.get(id);
+    Docs.imprimerBon(o);
   };
 
   App.livrer = (id) => {
