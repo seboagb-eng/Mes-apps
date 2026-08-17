@@ -56,18 +56,22 @@ remettre une **facture** au client, et **savoir où en est son stock**.
 - Génère un **message texte structuré** listant les articles et quantités.
 - Envoi en un clic vers le **numéro WhatsApp du magasinier** (réglages).
 
-### 4.4 Factures (client)
-- Facture professionnelle : logo, coordonnées de la boutique, lignes, totaux,
-  remise, payé, **reste à payer**, message de pied.
-- **Imprimable / enregistrable en PDF** (impression du navigateur).
+### 4.4 Factures & reçus (client)
+- Facture professionnelle **A4** : logo, coordonnées, lignes, totaux, remise,
+  payé, **reste à payer**, message de pied. **Imprimable / PDF**.
+- **Reçu / ticket** optimisé pour **imprimante Bluetooth portable** (58 mm / 80 mm,
+  largeur réglable) — cas d'usage réel de la commerçante.
 - Ou **résumé envoyé au client par WhatsApp**.
 - Numérotation automatique (`FAC-0001`…).
 
 ### 4.5 Stock & produits
 - CRUD produits : nom, catégorie, unité, **prix d'achat**, **prix de vente**,
   **stock**, **seuil d'alerte**.
+- **Vente au poids** : quantités **décimales** (ex. 2,5 kg), montant calculé auto.
+- **Dates d'arrivage et de péremption** (poisson congelé/périssable) + **alerte**
+  de péremption proche sur le tableau de bord.
 - Badge de stock, mise en évidence des ruptures.
-- **Réapprovisionnement** rapide (entrée de stock).
+- **Réapprovisionnement** rapide (entrée de stock, met à jour l'arrivage).
 
 ### 4.6 Clients
 - Répertoire : nom, téléphone (WhatsApp), adresse, note.

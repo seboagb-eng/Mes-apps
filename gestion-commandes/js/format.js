@@ -2,17 +2,23 @@
  * format.js — Fonctions utilitaires d'affichage et partage
  */
 
-// Montant en FCFA : "1 250 000 FCFA" (entiers, séparateur espace)
+// Espace insécable : évite qu'un nombre ou "FCFA" se coupe en fin de ligne
+const NBSP = " ";
+
+// Montant en FCFA : "1 250 000 FCFA" (entiers, séparateur insécable)
 function fmtMontant(n, devise) {
   const d = devise || (window.Store ? window.Store.Reglages.get().devise : "FCFA");
   const val = Math.round(Number(n) || 0);
-  const s = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  return `${s} ${d}`;
+  const s = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+  return `${s}${NBSP}${d}`;
 }
 
-// Nombre simple avec séparateurs (pour quantités/stock)
+// Nombre avec séparateurs de milliers et virgule décimale (ex: 2,5 kg — 1 500)
 function fmtNombre(n) {
-  return (Number(n) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const num = Math.round((Number(n) || 0) * 1000) / 1000; // 3 décimales max
+  const [ent, dec] = num.toString().split(".");
+  const entFmt = ent.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+  return dec ? entFmt + "," + dec : entFmt;
 }
 
 const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -29,6 +35,27 @@ function fmtDateHeure(ts) {
   const hh = String(d.getHours()).padStart(2, "0");
   const mm = String(d.getMinutes()).padStart(2, "0");
   return `${fmtDate(ts)} à ${hh}:${mm}`;
+}
+
+// Formate une date "AAAA-MM-JJ" en "17 août 2026"
+function fmtDateJour(iso) {
+  if (!iso) return "";
+  const parts = iso.split("-").map(Number);
+  const [y, m, d] = parts;
+  if (!y || !m || !d) return "";
+  return `${d} ${MOIS[m - 1]} ${y}`;
+}
+
+// Nombre de jours entre aujourd'hui et une date "AAAA-MM-JJ" (négatif = passé)
+function joursAvant(iso) {
+  if (!iso) return null;
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y) return null;
+  const cible = new Date(y, m - 1, d);
+  cible.setHours(0, 0, 0, 0);
+  const auj = new Date();
+  auj.setHours(0, 0, 0, 0);
+  return Math.round((cible.getTime() - auj.getTime()) / 86400000);
 }
 
 // Début du jour / du mois (timestamps)
@@ -91,6 +118,8 @@ window.Fmt = {
   fmtNombre,
   fmtDate,
   fmtDateHeure,
+  fmtDateJour,
+  joursAvant,
   debutJour,
   debutMois,
   telWhatsApp,

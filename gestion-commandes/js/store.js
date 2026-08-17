@@ -94,6 +94,8 @@ const Produits = {
       prixVente: Number(p.prixVente) || 0,
       stock: Number(p.stock) || 0,
       seuilAlerte: Number(p.seuilAlerte) || 0,
+      dateArrivage: p.dateArrivage || "", // AAAA-MM-JJ
+      datePeremption: p.datePeremption || "", // AAAA-MM-JJ (pour congelé/périssable)
       actif: true,
       creeLe: Date.now(),
     };
@@ -104,7 +106,7 @@ const Produits = {
   maj(id, patch) {
     const p = Produits.get(id);
     if (!p) return;
-    ["nom", "categorie", "unite"].forEach((k) => {
+    ["nom", "categorie", "unite", "dateArrivage", "datePeremption"].forEach((k) => {
       if (patch[k] !== undefined) p[k] = patch[k];
     });
     ["prixAchat", "prixVente", "stock", "seuilAlerte"].forEach((k) => {
@@ -136,6 +138,16 @@ const Produits = {
       (s, p) => s + (Number(p.prixAchat) || 0) * (Number(p.stock) || 0),
       0
     );
+  },
+  // Produits périssables dont la date de péremption approche ou est dépassée
+  peremptionProche(jours) {
+    const seuil = jours == null ? 14 : jours;
+    const jav = window.Fmt ? window.Fmt.joursAvant : () => null;
+    return Produits.liste()
+      .filter((p) => p.actif && p.datePeremption)
+      .map((p) => ({ produit: p, jours: jav(p.datePeremption) }))
+      .filter((x) => x.jours !== null && x.jours <= seuil)
+      .sort((a, b) => a.jours - b.jours);
   },
 };
 
@@ -317,10 +329,10 @@ function demarrerAvecExemples(db) {
   db.reglages.entreprise = "Ma Boutique";
   // Exemples adaptés à un commerce de poisson + articles divers (à modifier/supprimer)
   const p = [
-    { nom: "Carton de chinchard congelé", categorie: "Poisson congelé", unite: "carton", prixAchat: 18000, prixVente: 22000, stock: 15, seuilAlerte: 4 },
-    { nom: "Carton de maquereau", categorie: "Poisson congelé", unite: "carton", prixAchat: 20000, prixVente: 25000, stock: 10, seuilAlerte: 3 },
+    { nom: "Carton de chinchard congelé", categorie: "Poisson congelé", unite: "carton", prixAchat: 18000, prixVente: 22000, stock: 15, seuilAlerte: 4, dateArrivage: "2026-08-10", datePeremption: "2026-12-15" },
+    { nom: "Carton de maquereau", categorie: "Poisson congelé", unite: "carton", prixAchat: 20000, prixVente: 25000, stock: 10, seuilAlerte: 3, dateArrivage: "2026-08-12", datePeremption: "2027-01-20" },
     { nom: "Poisson fumé", categorie: "Poisson fumé", unite: "kg", prixAchat: 2500, prixVente: 3500, stock: 30, seuilAlerte: 8 },
-    { nom: "Tilapia frais", categorie: "Poisson frais", unite: "kg", prixAchat: 1500, prixVente: 2200, stock: 25, seuilAlerte: 10 },
+    { nom: "Tilapia frais", categorie: "Poisson frais", unite: "kg", prixAchat: 1500, prixVente: 2200, stock: 25.5, seuilAlerte: 10 },
     { nom: "Crevettes séchées", categorie: "Poisson séché", unite: "kg", prixAchat: 4000, prixVente: 5500, stock: 6, seuilAlerte: 5 },
     { nom: "Bidon d'huile 5L", categorie: "Divers", unite: "bidon", prixAchat: 4500, prixVente: 6000, stock: 12, seuilAlerte: 4 },
     { nom: "Sac de riz 25kg", categorie: "Divers", unite: "sac", prixAchat: 12000, prixVente: 15000, stock: 8, seuilAlerte: 3 },

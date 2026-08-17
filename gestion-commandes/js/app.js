@@ -80,6 +80,7 @@
     const creances = cmds.reduce((s, o) => s + Calc.reste(o), 0);
     const valeurStock = Produits.valeurStock();
     const alertes = Produits.enAlerte();
+    const perim = Produits.peremptionProche(14);
     const recentes = Commandes.liste().slice(0, 5);
 
     $app().innerHTML = `
@@ -114,6 +115,16 @@
             <div class="ligne-liste" onclick="App.go('#/produits')">
               <div><strong>${escapeHtml(p.nom)}</strong></div>
               <div class="rouge">${fmtNombre(p.stock)} ${escapeHtml(p.unite)}</div>
+            </div>`).join("")}
+        </section>` : ""}
+
+      ${perim.length ? `
+        <section class="bloc alerte-bloc perim-bloc">
+          <h2>🧊 Péremption proche (${perim.length})</h2>
+          ${perim.map((x) => `
+            <div class="ligne-liste" onclick="App.go('#/produits')">
+              <div><strong>${escapeHtml(x.produit.nom)}</strong></div>
+              <div class="${x.jours < 0 ? "rouge" : "orange-txt"}">${x.jours < 0 ? `Périmé (${-x.jours} j)` : `${x.jours} j restant(s)`}</div>
             </div>`).join("")}
         </section>` : ""}
 
@@ -232,9 +243,10 @@
         <label class="lbl">Ajouter un article</label>
         <div class="ajout-ligne">
           <select id="f-produit">${optionsProduits || `<option value="">Aucun produit — ajoutez-en dans Stock</option>`}</select>
-          <input id="f-qte" type="number" inputmode="numeric" min="1" value="1" style="max-width:70px">
+          <input id="f-qte" type="number" inputmode="decimal" min="0" step="any" value="1" style="max-width:70px" title="Quantité (décimales autorisées, ex: 2,5)">
           <button class="btn-primaire" onclick="App.ajouterLigne()">Ajouter</button>
         </div>
+        <p class="aide">💡 Vente au poids : saisissez par ex. <b>2.5</b> kg — le montant se calcule tout seul.</p>
         <div id="lignes-cmd">${dessinerLignes()}</div>
       </section>
 
@@ -270,12 +282,12 @@
     if (!b.lignes.length) return `<p class="vide">Aucun article ajouté.</p>`;
     return b.lignes.map((l, i) => `
       <div class="ligne-article">
-        <div class="art-nom">${escapeHtml(l.nom)}</div>
+        <div class="art-nom">${escapeHtml(l.nom)} <span class="unite-hint">${escapeHtml(l.unite || "")}</span></div>
         <div class="art-controls">
-          <input type="number" inputmode="numeric" min="1" value="${l.qte}" title="Quantité"
+          <input type="number" inputmode="decimal" min="0" step="any" value="${l.qte}" title="Quantité"
                  oninput="App.majLigne(${i},'qte',this.value)">
           <span class="fois">×</span>
-          <input type="number" inputmode="numeric" min="0" value="${l.prixUnitaire}" title="Prix unitaire"
+          <input type="number" inputmode="numeric" min="0" step="any" value="${l.prixUnitaire}" title="Prix unitaire"
                  oninput="App.majLigne(${i},'prixUnitaire',this.value)">
           <span class="art-total" id="art-total-${i}">${fmtMontant(l.qte * l.prixUnitaire)}</span>
           <button class="btn-suppr" onclick="App.supprLigne(${i})">🗑️</button>
@@ -315,7 +327,8 @@
     const qteEl = document.getElementById("f-qte");
     if (!sel || !sel.value) { alert("Aucun produit sélectionné."); return; }
     const p = Produits.get(sel.value);
-    const qte = Math.max(1, Number(qteEl.value) || 1);
+    const qte = parseFloat(qteEl.value);
+    if (!qte || qte <= 0) { alert("Quantité invalide."); return; }
     const existante = App.brouillon.lignes.find((l) => l.produitId === p.id);
     if (existante) existante.qte += qte;
     else App.brouillon.lignes.push({ produitId: p.id, nom: p.nom, unite: p.unite, qte, prixUnitaire: p.prixVente });
@@ -412,7 +425,8 @@
         <div class="grille-boutons">
           <button class="btn-wa" onclick="App.envoyerBonCommande('${o.id}')">📦 Bon de commande → Magasinier</button>
           <button class="btn-wa" onclick="App.envoyerFacture('${o.id}')">🧾 Facture → Client (WhatsApp)</button>
-          <button class="btn-secondaire" onclick="App.imprimerFacture('${o.id}')">🖨️ Facture PDF / Imprimer</button>
+          <button class="btn-secondaire" onclick="App.imprimerRecu('${o.id}')">🧾 Imprimer reçu (imprimante portable)</button>
+          <button class="btn-secondaire" onclick="App.imprimerFacture('${o.id}')">🖨️ Facture A4 (PDF / Imprimer)</button>
         </div>
       </section>
 
@@ -450,6 +464,12 @@
   App.imprimerFacture = (id) => {
     const o = Commandes.genererFacture(id);
     Docs.imprimerFacture(o);
+    vueDetail(id);
+  };
+
+  App.imprimerRecu = (id) => {
+    const o = Commandes.genererFacture(id);
+    Docs.imprimerRecu(o);
     vueDetail(id);
   };
 
@@ -504,10 +524,18 @@
       <div class="bloc">
         ${produits.length ? produits.map((p) => {
           const bas = p.stock <= p.seuilAlerte;
+          const j = p.datePeremption ? Fmt.joursAvant(p.datePeremption) : null;
+          let per = "";
+          if (j !== null) {
+            const cls = j < 0 ? "per-expire" : j <= 14 ? "per-proche" : "per-ok";
+            const txt = j < 0 ? `Périmé depuis ${-j} j` : `Périme le ${Fmt.fmtDateJour(p.datePeremption)} (${j} j)`;
+            per = `<div class="sous-ligne ${cls}">🧊 ${txt}</div>`;
+          }
           return `<div class="ligne-liste">
             <div onclick="App.modalProduit('${p.id}')" style="flex:1">
               <div class="titre-ligne">${escapeHtml(p.nom)} ${!p.actif ? '<span class="badge b-annulee">inactif</span>' : ""}</div>
               <div class="sous-ligne">Vente ${fmtMontant(p.prixVente)} · ${escapeHtml(p.categorie || "—")}</div>
+              ${per}
             </div>
             <div class="stock-badge ${bas ? "bas" : ""}">
               ${fmtNombre(p.stock)} ${escapeHtml(p.unite)}
@@ -534,15 +562,21 @@
         <div><label class="lbl">Prix de vente</label><input id="p-vente" type="number" inputmode="numeric" min="0" value="${p ? p.prixVente : 0}"></div>
       </div>
       <div class="deux-col">
-        <div><label class="lbl">Stock actuel</label><input id="p-stock" type="number" inputmode="numeric" min="0" value="${p ? p.stock : 0}"></div>
-        <div><label class="lbl">Seuil d'alerte</label><input id="p-seuil" type="number" inputmode="numeric" min="0" value="${p ? p.seuilAlerte : 0}"></div>
+        <div><label class="lbl">Stock actuel</label><input id="p-stock" type="number" inputmode="decimal" min="0" step="any" value="${p ? p.stock : 0}"></div>
+        <div><label class="lbl">Seuil d'alerte</label><input id="p-seuil" type="number" inputmode="decimal" min="0" step="any" value="${p ? p.seuilAlerte : 0}"></div>
       </div>
+      <div class="deux-col">
+        <div><label class="lbl">Date d'arrivage</label><input id="p-arr" type="date" value="${p ? escapeHtml(p.dateArrivage || "") : ""}"></div>
+        <div><label class="lbl">Date de péremption</label><input id="p-per" type="date" value="${p ? escapeHtml(p.datePeremption || "") : ""}"></div>
+      </div>
+      <p class="aide">🧊 Dates utiles pour le poisson congelé / périssable (facultatif).</p>
       ${p ? `<button class="btn-lien-suppr" onclick="App.supprProduit('${p.id}')">Supprimer ce produit</button>` : ""}
     `, () => {
       const data = {
         nom: val("p-nom"), categorie: val("p-cat"), unite: val("p-unite") || "pièce",
         prixAchat: val("p-achat"), prixVente: val("p-vente"),
         stock: val("p-stock"), seuilAlerte: val("p-seuil"),
+        dateArrivage: val("p-arr"), datePeremption: val("p-per"),
       };
       if (!data.nom) { alert("Le nom est obligatoire."); return; }
       if (p) Produits.maj(p.id, data); else Produits.ajouter(data);
@@ -560,13 +594,19 @@
 
   App.modalReappro = (id) => {
     const p = Produits.get(id);
+    const auj = new Date().toISOString().slice(0, 10);
     ouvrirModal("Réapprovisionner", `
       <p class="sous">${escapeHtml(p.nom)} — stock actuel : <strong>${fmtNombre(p.stock)} ${escapeHtml(p.unite)}</strong></p>
       <label class="lbl">Quantité reçue à ajouter</label>
-      <input id="re-qte" type="number" inputmode="numeric" min="1" value="1">
+      <input id="re-qte" type="number" inputmode="decimal" min="0" step="any" value="1">
+      <label class="lbl" style="margin-top:8px">Nouvelle date de péremption (facultatif)</label>
+      <input id="re-per" type="date" value="${escapeHtml(p.datePeremption || "")}">
+      <p class="aide">La date d'arrivage sera mise à ${Fmt.fmtDateJour(auj)}.</p>
     `, () => {
-      const q = Number(document.getElementById("re-qte").value) || 0;
+      const q = parseFloat(document.getElementById("re-qte").value) || 0;
+      const per = document.getElementById("re-per").value;
       if (q > 0) Produits.bougerStock(id, q);
+      Produits.maj(id, { dateArrivage: auj, datePeremption: per });
       fermerModal();
       vueProduits();
     });

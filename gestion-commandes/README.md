@@ -12,9 +12,11 @@ Enregistrez vos commandes, envoyez le **bon de commande au magasinier par WhatsA
 |---|---|
 | **Tableau de bord** | Chiffre du jour / du mois, crédits en cours, valeur du stock, alertes de rupture |
 | **Commandes** | Créer une commande (client, articles, quantités, prix, remise, acompte), suivre son statut |
+| **Vente au poids** | Quantités **décimales** (ex. 2,5 kg) — le montant se calcule automatiquement |
 | **Bon de commande** | Génère un message propre et l'envoie au **magasinier via WhatsApp** en un clic |
-| **Factures** | Facture professionnelle imprimable / **enregistrable en PDF**, ou envoyée au client par WhatsApp |
+| **Factures** | Facture professionnelle **A4 (PDF)** ou **reçu/ticket pour imprimante portable (58/80 mm)**, ou envoi WhatsApp |
 | **Stock** | Produits avec prix d'achat/vente, stock déduit automatiquement à la livraison, seuil d'alerte, réapprovisionnement |
+| **Péremption** | Dates d'**arrivage** et de **péremption** (poisson congelé/périssable) + **alerte** avant expiration |
 | **Clients** | Répertoire clients avec téléphone, accès WhatsApp direct |
 | **Crédit / paiements** | Suivi des ventes à crédit et des montants restant à payer (courant au Bénin) |
 | **Réglages** | Nom de la boutique, logo, coordonnées, numéro du magasinier, devise, préfixes de numérotation |
@@ -24,6 +26,9 @@ Enregistrez vos commandes, envoyez le **bon de commande au magasinier par WhatsA
 - 💰 Devise **FCFA / XOF**, montants entiers, format « 56 000 FCFA »
 - 📶 **Hors ligne d'abord** — tolère le réseau 3G instable, tout est stocké sur le téléphone
 - 💬 **WhatsApp** comme canal principal (bons de commande, factures, relances)
+- 🖨️ **Reçu imprimable** sur imprimante Bluetooth portable (58 mm / 80 mm)
+- ⚖️ **Vente au poids** (kg) avec quantités décimales
+- 🧊 Suivi des **dates de péremption** pour le poisson congelé
 - 📱 **Mobile Money** (MTN MoMo, Moov Money) parmi les modes de paiement
 - 🗣️ Interface **100 % en français**, gros boutons, simple d'usage
 
@@ -40,6 +45,11 @@ Enregistrez vos commandes, envoyez le **bon de commande au magasinier par WhatsA
 1. Allez dans **⚙️ Réglages** → renseignez le **nom de la boutique** et le **numéro WhatsApp du magasinier**.
 2. Dans **📦 Stock**, ajoutez vos produits (les exemples fournis peuvent être supprimés).
 3. Créez votre première commande avec **➕ Nouvelle commande**.
+
+> 🖨️ **Imprimante portable** : dans le détail d'une commande, touchez
+> *« Imprimer reçu (imprimante portable) »*. Choisissez la largeur (58 ou 80 mm),
+> puis imprimez via votre imprimante Bluetooth appairée au téléphone. Le format
+> A4 (PDF) reste disponible pour une facture complète.
 
 > 💡 **Sauvegarde** : les données vivent sur le téléphone. Faites régulièrement
 > *Réglages → Sauvegarde → Télécharger une sauvegarde* et gardez le fichier
