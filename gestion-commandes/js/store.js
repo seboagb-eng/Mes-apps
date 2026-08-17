@@ -315,14 +315,19 @@ const Sauvegarde = {
 /* ------------------------- DONNÉES D'EXEMPLE ------------------------- */
 function demarrerAvecExemples(db) {
   db.reglages.entreprise = "Ma Boutique";
+  // Exemples adaptés à un commerce de poisson + articles divers (à modifier/supprimer)
   const p = [
-    { nom: "Sac de riz 25kg", categorie: "Céréales", unite: "sac", prixAchat: 12000, prixVente: 15000, stock: 20, seuilAlerte: 5 },
-    { nom: "Bidon d'huile 5L", categorie: "Huile", unite: "bidon", prixAchat: 4500, prixVente: 6000, stock: 12, seuilAlerte: 4 },
-    { nom: "Carton de spaghetti", categorie: "Pâtes", unite: "carton", prixAchat: 8000, prixVente: 10000, stock: 8, seuilAlerte: 3 },
-    { nom: "Sac de sucre 50kg", categorie: "Sucre", unite: "sac", prixAchat: 22000, prixVente: 26000, stock: 3, seuilAlerte: 4 },
+    { nom: "Carton de chinchard congelé", categorie: "Poisson congelé", unite: "carton", prixAchat: 18000, prixVente: 22000, stock: 15, seuilAlerte: 4 },
+    { nom: "Carton de maquereau", categorie: "Poisson congelé", unite: "carton", prixAchat: 20000, prixVente: 25000, stock: 10, seuilAlerte: 3 },
+    { nom: "Poisson fumé", categorie: "Poisson fumé", unite: "kg", prixAchat: 2500, prixVente: 3500, stock: 30, seuilAlerte: 8 },
+    { nom: "Tilapia frais", categorie: "Poisson frais", unite: "kg", prixAchat: 1500, prixVente: 2200, stock: 25, seuilAlerte: 10 },
+    { nom: "Crevettes séchées", categorie: "Poisson séché", unite: "kg", prixAchat: 4000, prixVente: 5500, stock: 6, seuilAlerte: 5 },
+    { nom: "Bidon d'huile 5L", categorie: "Divers", unite: "bidon", prixAchat: 4500, prixVente: 6000, stock: 12, seuilAlerte: 4 },
+    { nom: "Sac de riz 25kg", categorie: "Divers", unite: "sac", prixAchat: 12000, prixVente: 15000, stock: 8, seuilAlerte: 3 },
+    { nom: "Boîte de tomate (carton)", categorie: "Divers", unite: "carton", prixAchat: 9000, prixVente: 11000, stock: 3, seuilAlerte: 4 },
   ];
   p.forEach((x) => db.produits.push(Object.assign({ id: nouvelId(), actif: true, creeLe: Date.now() }, x)));
-  db.clients.push({ id: nouvelId(), nom: "Mama Adjovi", telephone: "22997000000", adresse: "Dantokpa", note: "", creeLe: Date.now() });
+  db.clients.push({ id: nouvelId(), nom: "Mama Adjovi", telephone: "22997000000", adresse: "Marché Dantokpa", note: "Revendeuse de poisson", creeLe: Date.now() });
 }
 
 // Expose au reste de l'application

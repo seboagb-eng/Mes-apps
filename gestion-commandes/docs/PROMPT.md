@@ -5,8 +5,9 @@
 
 ## 1. Contexte & utilisatrice cible
 
-**Utilisatrice** : une commerçante indépendante au **Bénin** (ex. commerce de produits
-alimentaires / de gros au marché). Elle travaille depuis son **téléphone**, avec une
+**Utilisatrice** : une commerçante indépendante au **Bénin** — vente de **poisson**
+(frais, congelé, fumé, séché) et d'**articles divers** (huile, riz, conserves…).
+Elle travaille depuis son **téléphone**, avec une
 connexion internet **instable** (3G), et échange principalement par **WhatsApp**.
 Elle n'a pas de compétence informatique ni de support technique.
 
