@@ -1,0 +1,21 @@
+{
+  "name": "Gestion des Commandes",
+  "short_name": "Commandes",
+  "description": "Enregistrez vos commandes, envoyez les bons au magasinier par WhatsApp, générez les factures et suivez votre stock. Fonctionne hors ligne.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f5",
+  "theme_color": "#0B7A4B",
+  "lang": "fr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
