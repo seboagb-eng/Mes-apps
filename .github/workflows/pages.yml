@@ -1,0 +1,49 @@
+name: Publier Gestion des Commandes (GitHub Pages)
+
+# Publie l'application autonome gestion-commandes/ sur GitHub Pages.
+# L'appli devient accessible à la racine du site Pages du dépôt.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gestion-commandes/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Préparer les fichiers de l'application
+        run: |
+          mkdir -p _site
+          cp -r gestion-commandes/. _site/
+          touch _site/.nojekyll
+
+      - name: Téléverser l'artefact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Déployer sur Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
