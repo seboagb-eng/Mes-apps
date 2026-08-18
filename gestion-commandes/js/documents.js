@@ -337,9 +337,80 @@ function imprimerBon(o) {
   ouvrirImpression(pageImpression("Bon de commande " + o.numero, blocBonA4(o), ticketBon(o)));
 }
 
+/* ===================== ÉTAT JOURNALIER — FRAGMENTS ===================== */
+function blocEtatA4(rap) {
+  const { logo, coord, r } = enteteA4();
+  const stats = [
+    ["Nombre de commandes", String(rap.nbCommandes)],
+    ["Chiffre d'affaires", fmtMontant(rap.ca)],
+    ["Encaissé", fmtMontant(rap.encaisse)],
+    ["Créances (reste à payer)", fmtMontant(rap.creances)],
+    ["Commandes livrées", String(rap.nbLivrees)],
+    ["Commandes à livrer", String(rap.nbAlivrer)],
+  ];
+  if (rap.nbAnnulees) stats.push(["Commandes annulées", String(rap.nbAnnulees)]);
+
+  const statRows = stats.map((s) => `<tr><td>${s[0]}</td><td class="r bold">${s[1]}</td></tr>`).join("");
+  const payRows = Object.entries(rap.parPaiement)
+    .map(([m, v]) => `<tr><td>${escapeHtml(LIBELLE_PAIEMENT[m] || m)}</td><td class="r">${fmtMontant(v)}</td></tr>`)
+    .join("") || `<tr><td colspan="2">Aucun encaissement</td></tr>`;
+  const prodRows = rap.topProduits
+    .map((p, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(p.nom)}</td><td class="r">${fmtNombre(p.qte)} ${escapeHtml(p.unite || "")}</td><td class="r">${fmtMontant(p.montant)}</td></tr>`)
+    .join("") || `<tr><td colspan="4">Aucune vente</td></tr>`;
+
+  return `<div class="a4wrap">
+    <div class="a4-head">
+      <div class="a4-ent">${logo}<h1>${escapeHtml(r.entreprise)}</h1>${coord}</div>
+      <div class="a4-meta">
+        <div class="a4-titre">ÉTAT<br>JOURNALIER</div>
+        <p>Date : ${fmtDate(rap.ts)}</p>
+      </div>
+    </div>
+    <table class="a4-table"><thead><tr><th>Indicateur</th><th class="r">Valeur</th></tr></thead><tbody>${statRows}</tbody></table>
+    <h3 style="margin:18px 0 4px;color:#0B7A4B">Encaissements par mode</h3>
+    <table class="a4-table"><tbody>${payRows}</tbody></table>
+    <h3 style="margin:18px 0 4px;color:#0B7A4B">Produits vendus</h3>
+    <table class="a4-table"><thead><tr><th>#</th><th>Produit</th><th class="r">Qté</th><th class="r">Montant</th></tr></thead><tbody>${prodRows}</tbody></table>
+    <div class="a4-pied"><small>Édité le ${fmtDateHeure(Date.now())}</small></div>
+  </div>`;
+}
+
+function ticketEtat(rap) {
+  const r = Reglages.get();
+  const line = (a, b) => `<div class="tot"><span>${a}</span><span>${b}</span></div>`;
+  const pay = Object.entries(rap.parPaiement).map(([m, v]) => line(escapeHtml(LIBELLE_PAIEMENT[m] || m), fmtMontant(v))).join("");
+  const prod = rap.topProduits.map((p) => `
+    <div class="art"><div class="art-det"><span class="art-qte">${escapeHtml(p.nom)} (${fmtNombre(p.qte)})</span><span class="art-mt">${fmtMontant(p.montant)}</span></div></div>`).join("");
+  return `
+    <div class="c ent-nom">${escapeHtml(r.entreprise)}</div>
+    <div class="c pt">ÉTAT JOURNALIER</div>
+    <div class="c pt">${fmtDate(rap.ts)}</div>
+    <div class="sep"></div>
+    ${line("Commandes", String(rap.nbCommandes))}
+    ${line("Livrées", String(rap.nbLivrees))}
+    ${line("À livrer", String(rap.nbAlivrer))}
+    <div class="sep"></div>
+    <div class="tot grand"><span>C.A.</span><span>${fmtMontant(rap.ca)}</span></div>
+    ${line("Encaissé", fmtMontant(rap.encaisse))}
+    <div class="tot reste"><span>Créances</span><span>${fmtMontant(rap.creances)}</span></div>
+    <div class="sep"></div>
+    <div class="pt" style="font-weight:700">Par mode :</div>
+    ${pay || '<div class="pt">—</div>'}
+    <div class="sep"></div>
+    <div class="pt" style="font-weight:700">Produits vendus :</div>
+    ${prod || '<div class="pt">—</div>'}
+    <div class="sep"></div>
+    <div class="c pt">${fmtDateHeure(Date.now())}</div>`;
+}
+
+function imprimerEtat(rap) {
+  ouvrirImpression(pageImpression("État du " + fmtDate(rap.ts), blocEtatA4(rap), ticketEtat(rap)));
+}
+
 window.Docs = {
   texteBonCommande, texteFacture,
   blocFactureA4, blocBonA4, ticketFacture, ticketBon, pageImpression,
+  blocEtatA4, ticketEtat, imprimerEtat,
   imprimerFacture, imprimerBon,
 };
 })();
