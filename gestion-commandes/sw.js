@@ -1,9 +1,10 @@
 /*
  * sw.js — Service Worker
- * Met en cache l'application pour un fonctionnement 100% hors ligne.
- * Stratégie : "cache d'abord" pour la coque de l'app, réseau en secours.
+ * Objectif : l'application reste utilisable hors ligne, MAIS affiche
+ * toujours la dernière version dès qu'il y a du réseau.
+ * Stratégie : "réseau d'abord, cache en secours" pour nos fichiers.
  */
-const CACHE = "gc-cache-v1";
+const CACHE = "gc-cache-v3";
 const FICHIERS = [
   "./",
   "./index.html",
@@ -33,19 +34,19 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
-  // On ne met en cache que notre propre origine
   if (new URL(req.url).origin !== self.location.origin) return;
 
+  // Réseau d'abord : on récupère la version à jour, on met le cache à jour,
+  // et on bascule sur le cache uniquement si le réseau est indisponible.
   e.respondWith(
-    caches.match(req).then((cache) => {
-      if (cache) return cache;
-      return fetch(req)
-        .then((rep) => {
-          const copie = rep.clone();
-          caches.open(CACHE).then((c) => c.put(req, copie)).catch(() => {});
-          return rep;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
+    fetch(req)
+      .then((rep) => {
+        const copie = rep.clone();
+        caches.open(CACHE).then((c) => c.put(req, copie)).catch(() => {});
+        return rep;
+      })
+      .catch(() =>
+        caches.match(req).then((cache) => cache || caches.match("./index.html"))
+      )
   );
 });
