@@ -108,7 +108,7 @@
       </div>
 
       <button class="btn-primaire large" onclick="App.go('#/commande-nouvelle')">➕ Nouvelle commande</button>
-      <button class="btn-secondaire large" onclick="App.go('#/etat')">📅 État journalier</button>
+      <button class="btn-secondaire large" onclick="App.go('#/etat')">📅 États (jour · semaine · mois)</button>
 
       ${alertes.length ? `
         <section class="bloc alerte-bloc">
@@ -154,23 +154,44 @@
     </div>`;
   }
 
-  /* ============================= ÉTAT JOURNALIER ============================= */
-  // Construit le rapport agrégé d'une journée
-  function rapportJour(ts) {
-    const j0 = debutJour(ts);
-    const j1 = j0 + 86400000;
-    const jour = Commandes.liste().filter((o) => o.date >= j0 && o.date < j1);
-    const actives = jour.filter((o) => o.statut !== "annulee");
+  /* ============================= ÉTATS (JOUR / SEMAINE / MOIS) ============================= */
+  const MOIS_LONG = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+  // Bornes [debut, fin) et libellé d'une période à partir d'une date de référence
+  function bornesPeriode(iso, mode) {
+    const [y, m, d] = iso.split("-").map(Number);
+    if (mode === "mois") {
+      const debut = new Date(y, m - 1, 1).getTime();
+      const fin = new Date(y, m, 1).getTime();
+      const nom = MOIS_LONG[m - 1];
+      const prefixe = /^[aeiouéèâ]/i.test(nom) ? "d'" : "de ";
+      return { debut, fin, libelle: `Mois ${prefixe}${nom} ${y}` };
+    }
+    if (mode === "semaine") {
+      const base = new Date(y, m - 1, d); base.setHours(0, 0, 0, 0);
+      const dow = (base.getDay() + 6) % 7; // lundi = 0
+      const debutD = new Date(base); debutD.setDate(base.getDate() - dow);
+      const finD = new Date(debutD); finD.setDate(debutD.getDate() + 7);
+      return { debut: debutD.getTime(), fin: finD.getTime(), libelle: `Semaine du ${fmtDate(debutD.getTime())} au ${fmtDate(finD.getTime() - 1)}` };
+    }
+    const debut = new Date(y, m - 1, d).getTime();
+    return { debut, fin: debut + 86400000, libelle: `Journée du ${fmtDate(debut)}` };
+  }
+
+  // Rapport agrégé sur une période quelconque
+  function rapportPeriode(debut, fin, libelle) {
+    const dans = Commandes.liste().filter((o) => o.date >= debut && o.date < fin);
+    const actives = dans.filter((o) => o.statut !== "annulee");
     const ca = actives.reduce((s, o) => s + Calc.total(o), 0);
     const encaisse = actives.reduce((s, o) => s + Math.min(Number(o.montantPaye) || 0, Calc.total(o)), 0);
     const creances = actives.reduce((s, o) => s + Calc.reste(o), 0);
     const nbLivrees = actives.filter((o) => o.statut === "livree").length;
     const nbAlivrer = actives.filter((o) => o.statut === "validee").length;
-    const nbAnnulees = jour.filter((o) => o.statut === "annulee").length;
+    const nbAnnulees = dans.filter((o) => o.statut === "annulee").length;
     const parPaiement = {};
     actives.forEach((o) => {
-      const m = Math.min(Number(o.montantPaye) || 0, Calc.total(o));
-      if (m > 0) parPaiement[o.modePaiement] = (parPaiement[o.modePaiement] || 0) + m;
+      const mt = Math.min(Number(o.montantPaye) || 0, Calc.total(o));
+      if (mt > 0) parPaiement[o.modePaiement] = (parPaiement[o.modePaiement] || 0) + mt;
     });
     const prod = {};
     actives.forEach((o) => o.lignes.forEach((l) => {
@@ -180,22 +201,35 @@
     }));
     const topProduits = Object.values(prod).sort((a, b) => b.montant - a.montant);
     return {
-      ts: j0, nbCommandes: actives.length, nbAnnulees, ca, encaisse, creances,
+      debut, fin, libelle, nbCommandes: actives.length, nbAnnulees, ca, encaisse, creances,
       nbLivrees, nbAlivrer, parPaiement, topProduits,
       commandes: actives.slice().sort((a, b) => b.date - a.date),
     };
   }
 
-  function vueEtatJournalier() {
+  function rapportCourant() {
     if (!App._dateEtat) App._dateEtat = new Date().toISOString().slice(0, 10);
-    const rap = rapportJour(App._dateEtat + "T12:00:00");
+    if (!App._modeEtat) App._modeEtat = "jour";
+    const b = bornesPeriode(App._dateEtat, App._modeEtat);
+    return rapportPeriode(b.debut, b.fin, b.libelle);
+  }
+
+  function vueEtatJournalier() {
+    const rap = rapportCourant();
     const paiements = Object.entries(rap.parPaiement);
+    const chip = (v, lbl) => `<button class="chip ${App._modeEtat === v ? "actif" : ""}" onclick="App.setModeEtat('${v}')">${lbl}</button>`;
 
     $app().innerHTML = `
-      ${entete("État journalier", fmtDate(rap.ts), `<button class="btn-icone" onclick="App.go('#/')">←</button>`)}
+      ${entete("États", rap.libelle, `<button class="btn-icone" onclick="App.go('#/')">←</button>`)}
+
+      <div class="chips">
+        ${chip("jour", "Jour")}
+        ${chip("semaine", "Semaine")}
+        ${chip("mois", "Mois")}
+      </div>
 
       <section class="bloc">
-        <label class="lbl">Date du rapport</label>
+        <label class="lbl">Date de référence</label>
         <input type="date" value="${App._dateEtat}" onchange="App.setDateEtat(this.value)">
       </section>
 
@@ -233,11 +267,9 @@
     `;
   }
 
+  App.setModeEtat = (v) => { App._modeEtat = v; vueEtatJournalier(); };
   App.setDateEtat = (iso) => { App._dateEtat = iso || new Date().toISOString().slice(0, 10); vueEtatJournalier(); };
-  App.imprimerEtat = () => {
-    const rap = rapportJour(App._dateEtat + "T12:00:00");
-    Docs.imprimerEtat(rap);
-  };
+  App.imprimerEtat = () => { Docs.imprimerEtat(rapportCourant()); };
 
   /* ============================= LISTE COMMANDES ============================= */
   function vueCommandes() {

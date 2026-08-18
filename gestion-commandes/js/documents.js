@@ -362,8 +362,8 @@ function blocEtatA4(rap) {
     <div class="a4-head">
       <div class="a4-ent">${logo}<h1>${escapeHtml(r.entreprise)}</h1>${coord}</div>
       <div class="a4-meta">
-        <div class="a4-titre">ÉTAT<br>JOURNALIER</div>
-        <p>Date : ${fmtDate(rap.ts)}</p>
+        <div class="a4-titre">ÉTAT</div>
+        <p>${escapeHtml(rap.libelle || "")}</p>
       </div>
     </div>
     <table class="a4-table"><thead><tr><th>Indicateur</th><th class="r">Valeur</th></tr></thead><tbody>${statRows}</tbody></table>
@@ -383,8 +383,8 @@ function ticketEtat(rap) {
     <div class="art"><div class="art-det"><span class="art-qte">${escapeHtml(p.nom)} (${fmtNombre(p.qte)})</span><span class="art-mt">${fmtMontant(p.montant)}</span></div></div>`).join("");
   return `
     <div class="c ent-nom">${escapeHtml(r.entreprise)}</div>
-    <div class="c pt">ÉTAT JOURNALIER</div>
-    <div class="c pt">${fmtDate(rap.ts)}</div>
+    <div class="c pt">ÉTAT</div>
+    <div class="c pt">${escapeHtml(rap.libelle || "")}</div>
     <div class="sep"></div>
     ${line("Commandes", String(rap.nbCommandes))}
     ${line("Livrées", String(rap.nbLivrees))}
@@ -404,7 +404,7 @@ function ticketEtat(rap) {
 }
 
 function imprimerEtat(rap) {
-  ouvrirImpression(pageImpression("État du " + fmtDate(rap.ts), blocEtatA4(rap), ticketEtat(rap)));
+  ouvrirImpression(pageImpression(rap.libelle || "État", blocEtatA4(rap), ticketEtat(rap)));
 }
 
 window.Docs = {
