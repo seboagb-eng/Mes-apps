@@ -11,6 +11,7 @@ Enregistrez vos commandes, envoyez le **bon de commande au magasinier par WhatsA
 | Module | Ce que ça fait |
 |---|---|
 | **Tableau de bord** | Chiffre du jour / du mois, crédits en cours, valeur du stock, alertes de rupture |
+| **État journalier** | Rapport d'une journée : nb de commandes, chiffre d'affaires, encaissé, créances, livrées/à livrer, encaissements par mode, produits vendus — **imprimable** (A4 / ticket) |
 | **Commandes** | Créer une commande (client, articles, quantités, prix, remise, acompte), suivre son statut |
 | **Vente au poids** | Quantités **décimales** (ex. 2,5 kg) — le montant se calcule automatiquement |
 | **Bon de commande** | Envoi au **magasinier par WhatsApp** en un clic, **et impression** (A4 ou ticket portable) — liste de préparation avec cases à cocher |

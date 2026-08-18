@@ -20,6 +20,7 @@
     "": vueDashboard,
     "commandes": vueCommandes,
     "commande-nouvelle": () => vueEditeur(null),
+    "etat": vueEtatJournalier,
     "produits": vueProduits,
     "clients": vueClients,
     "reglages": vueReglages,
@@ -40,7 +41,7 @@
   }
 
   function majNav(route) {
-    const map = { "": "accueil", commandes: "commandes", "commande-nouvelle": "commandes", produits: "produits", clients: "clients", reglages: "reglages", sauvegarde: "reglages" };
+    const map = { "": "accueil", commandes: "commandes", "commande-nouvelle": "commandes", etat: "accueil", produits: "produits", clients: "clients", reglages: "reglages", sauvegarde: "reglages" };
     const actif = map[route] || "accueil";
     document.querySelectorAll(".nav-item").forEach((n) => {
       n.classList.toggle("actif", n.dataset.nav === actif);
@@ -107,6 +108,7 @@
       </div>
 
       <button class="btn-primaire large" onclick="App.go('#/commande-nouvelle')">➕ Nouvelle commande</button>
+      <button class="btn-secondaire large" onclick="App.go('#/etat')">📅 État journalier</button>
 
       ${alertes.length ? `
         <section class="bloc alerte-bloc">
@@ -151,6 +153,91 @@
       </div>
     </div>`;
   }
+
+  /* ============================= ÉTAT JOURNALIER ============================= */
+  // Construit le rapport agrégé d'une journée
+  function rapportJour(ts) {
+    const j0 = debutJour(ts);
+    const j1 = j0 + 86400000;
+    const jour = Commandes.liste().filter((o) => o.date >= j0 && o.date < j1);
+    const actives = jour.filter((o) => o.statut !== "annulee");
+    const ca = actives.reduce((s, o) => s + Calc.total(o), 0);
+    const encaisse = actives.reduce((s, o) => s + Math.min(Number(o.montantPaye) || 0, Calc.total(o)), 0);
+    const creances = actives.reduce((s, o) => s + Calc.reste(o), 0);
+    const nbLivrees = actives.filter((o) => o.statut === "livree").length;
+    const nbAlivrer = actives.filter((o) => o.statut === "validee").length;
+    const nbAnnulees = jour.filter((o) => o.statut === "annulee").length;
+    const parPaiement = {};
+    actives.forEach((o) => {
+      const m = Math.min(Number(o.montantPaye) || 0, Calc.total(o));
+      if (m > 0) parPaiement[o.modePaiement] = (parPaiement[o.modePaiement] || 0) + m;
+    });
+    const prod = {};
+    actives.forEach((o) => o.lignes.forEach((l) => {
+      if (!prod[l.nom]) prod[l.nom] = { nom: l.nom, unite: l.unite, qte: 0, montant: 0 };
+      prod[l.nom].qte += Number(l.qte) || 0;
+      prod[l.nom].montant += (Number(l.qte) || 0) * (Number(l.prixUnitaire) || 0);
+    }));
+    const topProduits = Object.values(prod).sort((a, b) => b.montant - a.montant);
+    return {
+      ts: j0, nbCommandes: actives.length, nbAnnulees, ca, encaisse, creances,
+      nbLivrees, nbAlivrer, parPaiement, topProduits,
+      commandes: actives.slice().sort((a, b) => b.date - a.date),
+    };
+  }
+
+  function vueEtatJournalier() {
+    if (!App._dateEtat) App._dateEtat = new Date().toISOString().slice(0, 10);
+    const rap = rapportJour(App._dateEtat + "T12:00:00");
+    const paiements = Object.entries(rap.parPaiement);
+
+    $app().innerHTML = `
+      ${entete("État journalier", fmtDate(rap.ts), `<button class="btn-icone" onclick="App.go('#/')">←</button>`)}
+
+      <section class="bloc">
+        <label class="lbl">Date du rapport</label>
+        <input type="date" value="${App._dateEtat}" onchange="App.setDateEtat(this.value)">
+      </section>
+
+      <div class="grille-stats">
+        <div class="carte-stat bleu"><div class="label">Commandes</div><div class="valeur">${rap.nbCommandes}</div>${rap.nbAnnulees ? `<div class="detail">${rap.nbAnnulees} annulée(s)</div>` : ""}</div>
+        <div class="carte-stat vert"><div class="label">Chiffre d'affaires</div><div class="valeur">${fmtMontant(rap.ca)}</div></div>
+        <div class="carte-stat vert"><div class="label">Encaissé</div><div class="valeur">${fmtMontant(rap.encaisse)}</div></div>
+        <div class="carte-stat orange"><div class="label">Créances (reste)</div><div class="valeur">${fmtMontant(rap.creances)}</div></div>
+        <div class="carte-stat gris"><div class="label">Livrées</div><div class="valeur">${rap.nbLivrees}</div></div>
+        <div class="carte-stat gris"><div class="label">À livrer</div><div class="valeur">${rap.nbAlivrer}</div></div>
+      </div>
+
+      <section class="bloc">
+        <h2>Encaissements par mode</h2>
+        ${paiements.length ? paiements.map(([m, v]) => `
+          <div class="recap-ligne"><span>${LIBELLE_PAIEMENT[m] || m}</span><span>${fmtMontant(v)}</span></div>`).join("")
+          : `<p class="vide">Aucun encaissement.</p>`}
+      </section>
+
+      <section class="bloc">
+        <h2>Produits vendus</h2>
+        ${rap.topProduits.length ? rap.topProduits.map((p) => `
+          <div class="ligne-liste" style="cursor:default">
+            <div><div class="titre-ligne">${escapeHtml(p.nom)}</div><div class="sous-ligne">${fmtNombre(p.qte)} ${escapeHtml(p.unite || "")}</div></div>
+            <div class="montant-ligne">${fmtMontant(p.montant)}</div>
+          </div>`).join("") : `<p class="vide">Aucune vente ce jour.</p>`}
+      </section>
+
+      <section class="bloc">
+        <h2>Commandes du jour (${rap.commandes.length})</h2>
+        ${rap.commandes.length ? rap.commandes.map(ligneCommande).join("") : `<p class="vide">Aucune commande ce jour.</p>`}
+      </section>
+
+      <button class="btn-secondaire large" onclick="App.imprimerEtat()">🖨️ Imprimer l'état (A4 / ticket)</button>
+    `;
+  }
+
+  App.setDateEtat = (iso) => { App._dateEtat = iso || new Date().toISOString().slice(0, 10); vueEtatJournalier(); };
+  App.imprimerEtat = () => {
+    const rap = rapportJour(App._dateEtat + "T12:00:00");
+    Docs.imprimerEtat(rap);
+  };
 
   /* ============================= LISTE COMMANDES ============================= */
   function vueCommandes() {
