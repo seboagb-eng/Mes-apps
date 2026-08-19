@@ -1,13 +1,18 @@
-name: Publier Gestion des Commandes (GitHub Pages)
+name: Publier les applications (GitHub Pages)
 
-# Publie l'application autonome gestion-commandes/ sur GitHub Pages.
-# L'appli devient accessible à la racine du site Pages du dépôt.
+# Publie sur GitHub Pages :
+#   /                     -> page d'accueil (lanceur des applications)
+#   /gestion-commandes/   -> application Gestion des Commandes
+#   /basicfit-coach/      -> application Coach Basic Fit
+# Chaque application reste installable (PWA) et utilisable hors ligne.
 
 on:
   push:
     branches: [main]
     paths:
+      - "index.html"
       - "gestion-commandes/**"
+      - "basicfit-coach/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -33,10 +38,15 @@ jobs:
       - name: Configurer Pages
         uses: actions/configure-pages@v5
 
-      - name: Préparer les fichiers de l'application
+      - name: Préparer les fichiers du site
         run: |
           mkdir -p _site
-          cp -r gestion-commandes/. _site/
+          # Page d'accueil (lanceur)
+          cp index.html _site/index.html
+          # Applications installables
+          mkdir -p _site/gestion-commandes _site/basicfit-coach
+          cp -r gestion-commandes/. _site/gestion-commandes/
+          cp -r basicfit-coach/. _site/basicfit-coach/
           touch _site/.nojekyll
 
       - name: Téléverser l'artefact
