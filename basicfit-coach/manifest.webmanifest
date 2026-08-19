@@ -1,0 +1,22 @@
+{
+  "name": "Coach Basic Fit",
+  "short_name": "Coach BF",
+  "description": "Ton coach de musculation personnel pour la salle Basic Fit : programme sur mesure, séances guidées, minuteur de repos, illustrations des muscles et suivi de progression. Fonctionne hors ligne.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1015",
+  "theme_color": "#0c1015",
+  "lang": "fr",
+  "dir": "ltr",
+  "categories": ["health", "fitness", "sports"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

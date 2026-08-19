@@ -2,13 +2,73 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=./gestion-commandes/">
-  <link rel="canonical" href="./gestion-commandes/">
-  <title>Gestion des Commandes</title>
-  <script>location.replace("./gestion-commandes/");</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c1015">
+  <meta name="description" content="Mes applications : Gestion des Commandes et Coach Basic Fit. Installables et utilisables hors ligne.">
+  <title>Mes apps</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root { --safe-b: env(safe-area-inset-bottom, 0px); }
+    body {
+      background: #0c1015; color: #eef2f7;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.45; min-height: 100vh;
+      padding: 28px 18px calc(28px + var(--safe-b));
+    }
+    .wrap { max-width: 560px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 28px; }
+    h1 { font-size: 1.9rem; letter-spacing: -.02em; }
+    .sub { color: #8a97a6; margin-top: 6px; font-size: .95rem; }
+    .apps { display: flex; flex-direction: column; gap: 14px; }
+    .app {
+      display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;
+      background: #171d26; border: 1px solid #262f3b; border-radius: 18px;
+      padding: 18px; transition: transform .08s, border-color .15s;
+    }
+    .app:active { transform: scale(.99); }
+    .app-ico {
+      width: 60px; height: 60px; border-radius: 16px; flex: none;
+      display: grid; place-items: center; overflow: hidden;
+      background: #11161d; border: 1px solid #262f3b;
+    }
+    .app-ico img { width: 100%; height: 100%; }
+    .app-txt { flex: 1; min-width: 0; }
+    .app-txt strong { display: block; font-size: 1.12rem; letter-spacing: -.01em; }
+    .app-txt span { color: #8a97a6; font-size: .86rem; }
+    .app-fleche { color: #8a97a6; font-size: 1.4rem; flex: none; }
+    .coach { border-color: #3a2417; }
+    .coach .app-fleche { color: #ff7a3c; }
+    footer { text-align: center; color: #8a97a6; font-size: .8rem; margin-top: 26px; }
+  </style>
 </head>
 <body>
-  <p>Ouverture de l'application… <a href="./gestion-commandes/">Cliquez ici si rien ne se passe.</a></p>
+  <div class="wrap">
+    <header>
+      <h1>Mes apps</h1>
+      <p class="sub">Applications installables, utilisables hors ligne.</p>
+    </header>
+
+    <div class="apps">
+      <a class="app coach" href="./basicfit-coach/">
+        <span class="app-ico"><img src="./basicfit-coach/icons/icon.svg" alt=""></span>
+        <span class="app-txt">
+          <strong>Coach Basic Fit</strong>
+          <span>Programme sur mesure, séances guidées, suivi et affluence.</span>
+        </span>
+        <span class="app-fleche">›</span>
+      </a>
+
+      <a class="app" href="./gestion-commandes/">
+        <span class="app-ico"><img src="./gestion-commandes/icons/icon.svg" alt=""></span>
+        <span class="app-txt">
+          <strong>Gestion des Commandes</strong>
+          <span>Commandes, bons WhatsApp, factures et suivi du stock.</span>
+        </span>
+        <span class="app-fleche">›</span>
+      </a>
+    </div>
+
+    <footer>Ajoute chaque app à ton écran d'accueil pour l'utiliser comme une vraie application.</footer>
+  </div>
 </body>
 </html>

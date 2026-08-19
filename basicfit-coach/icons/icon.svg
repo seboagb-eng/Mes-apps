@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Coach Basic Fit">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141a22"/>
+      <stop offset="1" stop-color="#0a0d12"/>
+    </linearGradient>
+    <linearGradient id="or" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff7a3c"/>
+      <stop offset="1" stop-color="#ff5a1f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- haltère -->
+  <g stroke-linecap="round">
+    <line x1="176" y1="256" x2="336" y2="256" stroke="url(#or)" stroke-width="34"/>
+    <rect x="118" y="196" width="40" height="120" rx="16" fill="url(#or)"/>
+    <rect x="86"  y="216" width="34" height="80"  rx="14" fill="#ffab6b"/>
+    <rect x="354" y="196" width="40" height="120" rx="16" fill="url(#or)"/>
+    <rect x="392" y="216" width="34" height="80"  rx="14" fill="#ffab6b"/>
+  </g>
+  <text x="256" y="392" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="70" fill="#eef2f7" letter-spacing="2">BF</text>
+</svg>
