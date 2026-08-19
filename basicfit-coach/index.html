@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#0c1015">
+  <meta name="description" content="Ton coach de musculation personnel pour la salle Basic Fit : programme sur mesure, séances guidées avec les machines, minuteur de repos, illustrations des muscles et suivi de progression. Fonctionne hors ligne.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Coach BF">
+  <link rel="stylesheet" href="css/styles.css">
+  <title>Coach Basic Fit</title>
+</head>
+<body>
+  <main id="app"><!-- rendu par app.js --></main>
+
+  <nav class="nav-bas">
+    <a class="nav-item actif" data-nav="accueil" href="#/">
+      <span class="ico">🏠</span><span>Accueil</span>
+    </a>
+    <a class="nav-item" data-nav="programme" href="#/programme">
+      <span class="ico">🗓️</span><span>Programme</span>
+    </a>
+    <a class="nav-item" data-nav="seance" href="#/seance">
+      <span class="ico">🏋️</span><span>Séance</span>
+    </a>
+    <a class="nav-item" data-nav="exercices" href="#/exercices">
+      <span class="ico">📚</span><span>Exercices</span>
+    </a>
+    <a class="nav-item" data-nav="progres" href="#/progres">
+      <span class="ico">📈</span><span>Progrès</span>
+    </a>
+  </nav>
+
+  <script src="js/data.js"></script>
+  <script src="js/illustrations.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/coach.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
