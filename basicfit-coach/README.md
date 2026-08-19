@@ -27,8 +27,17 @@ de repos, illustre les muscles travaillés et suit ta progression.
   graphique de volume hebdomadaire et courbes de charge par exercice.
 - **Mémoire des charges** — la dernière charge utilisée est pré-remplie à la
   séance suivante.
+- **Minuteur de repos robuste** — décompte basé sur l'horloge (juste même en
+  arrière-plan ou écran verrouillé), option *garder l'écran allumé*
+  (Wake Lock) et *notification de fin de repos*.
+- **Photos de progression** — galerie avant/après (avec poids et date),
+  stockées localement via IndexedDB, images compressées automatiquement.
+- **Affluence de la salle** — estimation horaire de la fréquentation type sur
+  la semaine (heatmap), meilleurs créneaux et heures à éviter.
+- **Sauvegarde export / import** — exporte tes données (profil, programme,
+  historique, charges) en fichier JSON et réimporte-les sur un autre téléphone.
 - **100 % hors ligne & privé** — tout est stocké sur ton téléphone
-  (localStorage). Aucune donnée n'est envoyée nulle part.
+  (localStorage + IndexedDB). Aucune donnée n'est envoyée nulle part.
 
 ## 📲 Installation sur le téléphone
 
@@ -49,8 +58,9 @@ PWA sans dépendance ni build : HTML/CSS/JavaScript vanilla.
 | `js/data.js` | Base d'exercices, muscles, modèles de séances |
 | `js/illustrations.js` | Illustrations SVG (carte des muscles + machines) |
 | `js/coach.js` | Génération du programme (le « cerveau ») |
-| `js/store.js` | État & sauvegarde locale, statistiques |
-| `js/app.js` | Routeur, vues, séance guidée, graphiques |
+| `js/store.js` | État & sauvegarde locale, statistiques, export/import |
+| `js/photos.js` | Photos de progression (IndexedDB + compression) |
+| `js/app.js` | Routeur, vues, séance guidée, minuteur, graphiques |
 | `sw.js` | Service Worker (offline-first) |
 
 ## ⚠️ Avertissement

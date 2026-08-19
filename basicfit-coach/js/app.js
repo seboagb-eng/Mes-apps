@@ -28,6 +28,8 @@ function route() {
     case "seance":      param ? vueSeanceActive(param) : vueChoixSeance(); break;
     case "exercices":   param ? vueExerciceDetail(param) : vueBibliotheque(); break;
     case "progres":     vueProgres(); break;
+    case "affluence":   vueAffluence(); break;
+    case "photos":      vuePhotos(); break;
     case "reglages":    vueReglages(); break;
     default:            vueAccueil();
   }
@@ -36,8 +38,11 @@ function route() {
 }
 
 function majNav(vue) {
+  // les vues secondaires reprennent l'onglet parent
+  const alias = { affluence: "accueil", photos: "progres" };
+  const actif = alias[vue] || vue || "accueil";
   document.querySelectorAll(".nav-item").forEach((a) =>
-    a.classList.toggle("actif", a.dataset.nav === (vue || "accueil")));
+    a.classList.toggle("actif", a.dataset.nav === actif));
 }
 function aller(hash) { location.hash = hash; }
 
@@ -164,6 +169,10 @@ function vueAccueil() {
         </div>
         <button class="btn-primaire btn-bloc" data-go="#/seance/${prochaine.cle}">Démarrer la séance ▶</button>
       </div>` : `<p class="muted">Aucun programme. <a href="#/programme">En créer un</a>.</p>`}
+    </section>
+
+    <section class="bloc">
+      ${carteAffluenceMaintenant()}
     </section>
 
     <section class="bloc">
@@ -403,31 +412,59 @@ function majChrono() {
     `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 }
 
-/* ------------------------- MINUTEUR DE REPOS ------------------------- */
+/* ------------------------- MINUTEUR DE REPOS ------------------------- *
+ * Décompte basé sur l'horloge (fin = timestamp) : il reste juste même si
+ * l'application passe en arrière-plan ou si l'écran se verrouille.
+ * + Wake Lock pour garder l'écran allumé, + notification de fin.
+ */
+let WAKE_LOCK = null;
+
+async function acquerirWakeLock() {
+  if (!Store.data.reglages.ecranAllume) return;
+  try {
+    if ("wakeLock" in navigator) WAKE_LOCK = await navigator.wakeLock.request("screen");
+  } catch (e) { /* refusé ou indisponible */ }
+}
+function libererWakeLock() {
+  try { WAKE_LOCK?.release(); } catch (e) {}
+  WAKE_LOCK = null;
+}
+
 function lancerTimer(sec) {
   arreterTimer();
-  TIMER = { restant: sec, total: sec };
+  TIMER = { total: sec, fin: Date.now() + sec * 1000 };
+  acquerirWakeLock();
   rendreTimer();
   TIMER.ref = setInterval(() => {
-    TIMER.restant--;
-    if (TIMER.restant <= 0) { feedback(); arreterTimer(); return; }
+    const restant = Math.ceil((TIMER.fin - Date.now()) / 1000);
+    if (restant <= 0) { finRepos(); return; }
     rendreTimer();
-  }, 1000);
+  }, 250);
 }
 function arreterTimer() {
   if (TIMER?.ref) clearInterval(TIMER.ref);
   TIMER = null;
+  libererWakeLock();
   const z = document.getElementById("zone-timer");
   if (z) z.innerHTML = "";
+}
+function finRepos() {
+  feedback();
+  notifierFinRepos();
+  arreterTimer();
+}
+function restantTimer() {
+  return TIMER ? Math.max(0, Math.ceil((TIMER.fin - Date.now()) / 1000)) : 0;
 }
 function rendreTimer() {
   const z = document.getElementById("zone-timer");
   if (!z || !TIMER) return;
-  const pct = 100 - (TIMER.restant / TIMER.total) * 100;
+  const restant = restantTimer();
+  const pct = 100 - (restant / TIMER.total) * 100;
   z.innerHTML = `
     <div class="timer-repos">
       <div class="tr-anneau" style="--pct:${pct}%">
-        <span>${TIMER.restant}s</span>
+        <span>${restant}s</span>
       </div>
       <div class="tr-txt"><strong>Repos</strong><span class="muted">Prépare la série suivante</span></div>
       <div class="tr-actions">
@@ -435,9 +472,23 @@ function rendreTimer() {
         <button id="tr-skip">Passer</button>
       </div>
     </div>`;
-  z.querySelector("#tr-plus").addEventListener("click", () => { TIMER.restant += 15; TIMER.total += 15; rendreTimer(); });
+  z.querySelector("#tr-plus").addEventListener("click", () => { TIMER.fin += 15000; TIMER.total += 15; rendreTimer(); });
   z.querySelector("#tr-skip").addEventListener("click", arreterTimer);
 }
+
+function notifierFinRepos() {
+  if (!Store.data.reglages.notifications) return;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  if (!document.hidden) return; // inutile si l'app est déjà à l'écran
+  try {
+    new Notification("Repos terminé 💪", { body: "C'est reparti pour la série suivante !", icon: "icons/icon.svg" });
+  } catch (e) { /* certains navigateurs exigent le service worker */ }
+}
+
+/* réacquiert le wake lock quand on revient sur l'app pendant un repos */
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && TIMER && !WAKE_LOCK) acquerirWakeLock();
+});
 
 /* Son + vibration en fin de repos */
 function feedback() {
@@ -547,7 +598,8 @@ function vueProgres() {
     $app.innerHTML = `<header class="topbar"><h1>Progrès</h1></header>
       <div class="vide"><span class="vide-ico">📈</span>
       <p class="muted">Pas encore de données. Termine ta première séance pour voir ta progression !</p>
-      <button class="btn-primaire" data-go="#/seance">Commencer une séance</button></div>`;
+      <button class="btn-primaire" data-go="#/seance">Commencer une séance</button>
+      <button class="btn-secondaire" data-go="#/photos">📸 Photos de progression</button></div>`;
     lierBoutonsGo();
     return;
   }
@@ -566,6 +618,12 @@ function vueProgres() {
       ${carteStat("🔥", Store.streak(), "jours d'affilée")}
       ${carteStat("⚖️", totalVolume(h).toLocaleString("fr-FR"), "kg soulevés")}
     </div>
+
+    <a class="carte-lien" href="#/photos">
+      <span class="cl-ico">📸</span>
+      <div><strong>Photos de progression</strong><span class="muted">Compare ton évolution physique</span></div>
+      <span class="fleche">›</span>
+    </a>
 
     <section class="bloc">
       <h2 class="titre-section">Volume par semaine</h2>
@@ -668,11 +726,23 @@ function vueReglages() {
     </div>
 
     <section class="bloc">
-      <h2 class="titre-section">Séance</h2>
+      <h2 class="titre-section">Séance & repos</h2>
       <label class="switch-ligne"><span>🔊 Son de fin de repos</span>
         <input type="checkbox" id="r-son" ${r.son ? "checked" : ""}></label>
       <label class="switch-ligne"><span>📳 Vibration</span>
         <input type="checkbox" id="r-vib" ${r.vibration ? "checked" : ""}></label>
+      <label class="switch-ligne"><span>💡 Garder l'écran allumé pendant le repos</span>
+        <input type="checkbox" id="r-ecran" ${r.ecranAllume ? "checked" : ""}></label>
+      <label class="switch-ligne"><span>🔔 Notification de fin de repos</span>
+        <input type="checkbox" id="r-notif" ${r.notifications ? "checked" : ""}></label>
+    </section>
+
+    <section class="bloc">
+      <h2 class="titre-section">Mes données</h2>
+      <button id="exporter" class="btn-secondaire btn-bloc">⬇️ Exporter ma sauvegarde</button>
+      <button id="importer" class="btn-secondaire btn-bloc">⬆️ Importer une sauvegarde</button>
+      <input type="file" accept="application/json,.json" id="fichier-import" hidden>
+      <p class="muted note-bas">Sauvegarde tes données (profil, programme, historique, charges) dans un fichier, pour changer de téléphone ou ne rien perdre. Les photos ne sont pas incluses.</p>
     </section>
 
     <section class="bloc">
@@ -684,6 +754,44 @@ function vueReglages() {
   `;
   $app.querySelector("#r-son").addEventListener("change", (e) => { Store.data.reglages.son = e.target.checked; Store.sauver(); });
   $app.querySelector("#r-vib").addEventListener("change", (e) => { Store.data.reglages.vibration = e.target.checked; Store.sauver(); });
+  $app.querySelector("#r-ecran").addEventListener("change", (e) => { Store.data.reglages.ecranAllume = e.target.checked; Store.sauver(); });
+  $app.querySelector("#r-notif").addEventListener("change", async (e) => {
+    if (e.target.checked && "Notification" in window && Notification.permission !== "granted") {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") { e.target.checked = false; toast("Notifications refusées par le navigateur"); }
+    }
+    Store.data.reglages.notifications = e.target.checked; Store.sauver();
+  });
+
+  // export
+  $app.querySelector("#exporter").addEventListener("click", () => {
+    const blob = new Blob([Store.exporter()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `coach-basicfit-sauvegarde-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Sauvegarde exportée ✅");
+  });
+  // import
+  const fichier = $app.querySelector("#fichier-import");
+  $app.querySelector("#importer").addEventListener("click", () => fichier.click());
+  fichier.addEventListener("change", () => {
+    const f = fichier.files && fichier.files[0];
+    if (!f) return;
+    const lecteur = new FileReader();
+    lecteur.onload = () => {
+      try {
+        const obj = JSON.parse(lecteur.result);
+        if (!confirm("Remplacer tes données actuelles par cette sauvegarde ?")) return;
+        if (Store.importer(obj)) { toast("Sauvegarde importée ✅"); route(); }
+        else toast("Fichier de sauvegarde invalide");
+      } catch (e) { toast("Fichier illisible"); }
+    };
+    lecteur.readAsText(f);
+    fichier.value = "";
+  });
   $app.querySelector("#modif-profil").addEventListener("click", () => {
     if (confirm("Refaire la configuration ? Ton historique sera conservé.")) {
       Store.data.profil = null; Store.sauver(); route();
@@ -694,6 +802,164 @@ function vueReglages() {
       Store.reinitialiser(); route();
     }
   });
+}
+
+/* ============================================================ *
+ *  AFFLUENCE (estimation de la fréquentation)
+ * ============================================================ */
+function jourAujourdhui() { return (new Date().getDay() + 6) % 7; } // 0 = lundi
+
+function carteAffluenceMaintenant() {
+  const h = new Date().getHours();
+  const v = affluenceJour(jourAujourdhui())[h];
+  const n = niveauAffluence(v);
+  return `
+  <a class="carte-affluence-mini ${n.classe}" href="#/affluence">
+    <div class="cam-info">
+      <span class="muted">Affluence à la salle · maintenant</span>
+      <strong>${n.txt} <span class="cam-pct">${v}%</span></strong>
+      <div class="cam-jauge"><div class="cam-remplissage" style="width:${v}%"></div></div>
+    </div>
+    <span class="fleche">›</span>
+  </a>`;
+}
+
+function vueAffluence() {
+  const jourActuel = jourAujourdhui();
+  const heureActuelle = new Date().getHours();
+  let jour = jourActuel;
+
+  function rendre() {
+    const vals = affluenceJour(jour);
+    // meilleurs créneaux dans les heures d'ouverture (6 h - 22 h)
+    const creneaux = vals.map((v, h) => ({ h, v }))
+      .filter((x) => x.h >= 6 && x.h <= 22)
+      .sort((a, b) => a.v - b.v).slice(0, 3)
+      .sort((a, b) => a.h - b.h);
+    const surcharge = vals.map((v, h) => ({ h, v }))
+      .filter((x) => x.h >= 6 && x.h <= 22)
+      .sort((a, b) => b.v - a.v)[0];
+
+    $app.innerHTML = `
+      <header class="topbar"><button class="rond" onclick="history.back()">‹</button><h1>Affluence</h1></header>
+      <p class="muted sous-titre">Estimation de la fréquentation type d'une salle, heure par heure. Choisis le bon créneau pour t'entraîner tranquille.</p>
+
+      <div class="pilules aff-jours">
+        ${JOURS_SEMAINE.map((j, i) => `<button class="pilule ${i === jour ? "choisi" : ""}" data-j="${i}">${j.court}</button>`).join("")}
+      </div>
+
+      <div class="carte-graph">
+        ${graphAffluence(vals, jour === jourActuel ? heureActuelle : -1)}
+        <div class="aff-legende">
+          <span><i class="pt aff-c-calme"></i>Calme</span>
+          <span><i class="pt aff-c-modere"></i>Modéré</span>
+          <span><i class="pt aff-c-charge"></i>Chargé</span>
+          <span><i class="pt aff-c-bonde"></i>Bondé</span>
+        </div>
+      </div>
+
+      <section class="bloc">
+        <h2 class="titre-section">✅ Meilleurs créneaux</h2>
+        <div class="liste">
+          ${creneaux.map((c) => { const n = niveauAffluence(c.v); return `
+            <div class="ligne-histo">
+              <strong>${String(c.h).padStart(2, "0")} h</strong>
+              <span class="badge ${c.v < 30 ? "badge-vert" : ""}">${n.txt} · ${c.v}%</span>
+            </div>`; }).join("")}
+        </div>
+        ${surcharge ? `<p class="muted note-bas">⚠️ À éviter : vers <strong>${String(surcharge.h).padStart(2, "0")} h</strong> (${surcharge.v}%, ${niveauAffluence(surcharge.v).txt.toLowerCase()}).</p>` : ""}
+      </section>
+
+      <p class="muted note-bas">Estimation indicative, pas des données en temps réel. Chaque club Basic Fit a son rythme — affine avec ton expérience.</p>
+      <div class="espace-nav"></div>
+    `;
+    $app.querySelectorAll(".aff-jours .pilule").forEach((b) =>
+      b.addEventListener("click", () => { jour = Number(b.dataset.j); rendre(); }));
+  }
+  rendre();
+}
+
+function graphAffluence(vals, heureActuelle) {
+  const max = Math.max(...vals, 1);
+  const couleur = (v) => v < 30 ? "var(--vert)" : v < 60 ? "var(--orange-cl)" : v < 80 ? "var(--orange)" : "var(--rouge)";
+  const barres = vals.map((v, h) => {
+    const haut = Math.max(4, (v / max) * 100);
+    const actif = h === heureActuelle;
+    return `<div class="aff-col ${actif ? "aff-now" : ""}" title="${h} h : ${v}%">
+      <div class="aff-bar" style="height:${haut}%; background:${couleur(v)}"></div>
+      ${h % 3 === 0 ? `<span class="aff-h">${h}</span>` : `<span class="aff-h">&nbsp;</span>`}
+    </div>`;
+  }).join("");
+  return `<div class="aff-graph">${barres}</div>
+    ${heureActuelle >= 0 ? `<p class="muted aff-maintenant">🔴 Maintenant : ${heureActuelle} h — ${niveauAffluence(vals[heureActuelle]).txt.toLowerCase()}</p>` : ""}`;
+}
+
+/* ============================================================ *
+ *  PHOTOS DE PROGRESSION
+ * ============================================================ */
+function vuePhotos() {
+  $app.innerHTML = `
+    <header class="topbar"><button class="rond" onclick="history.back()">‹</button><h1>Photos</h1></header>
+    <p class="muted sous-titre">Suis ton évolution physique dans le temps. Les photos restent sur ton téléphone.</p>
+    <input type="file" accept="image/*" capture="environment" id="photo-input" hidden>
+    <button id="ajouter-photo" class="btn-primaire btn-bloc">📸 Ajouter une photo</button>
+    <div id="galerie" class="galerie"><p class="muted">Chargement…</p></div>
+    <div class="espace-nav"></div>
+    <div id="lightbox"></div>
+  `;
+  const input = $app.querySelector("#photo-input");
+  $app.querySelector("#ajouter-photo").addEventListener("click", () => input.click());
+  input.addEventListener("change", async () => {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    const poids = prompt("Ton poids ce jour-là (kg) ? (facultatif)") || "";
+    try {
+      await Photos.ajouter(f, { poids: poids.trim() });
+      toast("Photo ajoutée 📸");
+      chargerGalerie();
+    } catch (e) {
+      toast("Impossible d'ajouter la photo");
+    }
+    input.value = "";
+  });
+  chargerGalerie();
+}
+
+async function chargerGalerie() {
+  const g = $app.querySelector("#galerie");
+  if (!g) return;
+  let photos = [];
+  try { photos = await Photos.lister(); }
+  catch (e) {
+    g.innerHTML = `<p class="muted">Les photos ne sont pas disponibles sur ce navigateur.</p>`;
+    return;
+  }
+  if (!photos.length) {
+    g.innerHTML = `<div class="vide"><span class="vide-ico">📷</span>
+      <p class="muted">Aucune photo pour l'instant. Prends une première photo aujourd'hui : ce sera ton point de départ !</p></div>`;
+    return;
+  }
+  g.innerHTML = photos.map((p) => `
+    <figure class="photo-item">
+      <img src="${p.img}" alt="Photo du ${fmtDate(p.date)}" data-voir="${p.img}">
+      <figcaption>
+        <span>${fmtDate(p.date)}${p.poids ? " · " + esc(p.poids) + " kg" : ""}</span>
+        <button class="photo-suppr" data-suppr="${p.id}" aria-label="Supprimer">🗑️</button>
+      </figcaption>
+    </figure>`).join("");
+  g.querySelectorAll("[data-suppr]").forEach((b) =>
+    b.addEventListener("click", async () => {
+      if (confirm("Supprimer cette photo ?")) { await Photos.supprimer(b.dataset.suppr); chargerGalerie(); }
+    }));
+  g.querySelectorAll("[data-voir]").forEach((img) =>
+    img.addEventListener("click", () => ouvrirLightbox(img.dataset.voir)));
+}
+
+function ouvrirLightbox(src) {
+  const lb = $app.querySelector("#lightbox");
+  if (!lb) return;
+  lb.innerHTML = `<div class="lightbox-fond"><img src="${src}" alt=""></div>`;
+  lb.querySelector(".lightbox-fond").addEventListener("click", () => { lb.innerHTML = ""; });
 }
 
 /* ------------------------- helpers UI ------------------------- */

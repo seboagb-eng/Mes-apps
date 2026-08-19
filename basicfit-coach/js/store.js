@@ -6,13 +6,19 @@
 
 const CLE_STOCKAGE = "basicfit-coach-v1";
 
-const ETAT_INITIAL = {
-  profil: null,          // { prenom, objectif, niveau, jours }
-  programme: null,       // { seances:[{id, nom, focus, ex:[...]}], cree }
-  historique: [],        // [{date, seanceNom, exercices:[{id, series:[{poids, reps}]}], duree}]
-  charges: {},           // { exId: { poids, reps } } dernière charge connue
-  reglages: { son: true, vibration: true },
-};
+/* Fabrique un état neuf à chaque appel : indispensable pour ne pas partager
+ * les mêmes tableaux/objets entre les copies (sinon une réinitialisation
+ * conserverait l'historique mutée). */
+function etatInitial() {
+  return {
+    profil: null,          // { prenom, objectif, niveau, jours }
+    programme: null,       // { seances:[{id, nom, focus, ex:[...]}], cree }
+    historique: [],        // [{date, seanceNom, exercices:[{id, series:[{poids, reps}]}], duree}]
+    charges: {},           // { exId: { poids, reps } } dernière charge connue
+    reglages: { son: true, vibration: true, ecranAllume: true, notifications: false },
+  };
+}
+const REGLAGES_DEFAUT = etatInitial().reglages;
 
 const Store = {
   data: null,
@@ -20,9 +26,12 @@ const Store = {
   charger() {
     try {
       const brut = localStorage.getItem(CLE_STOCKAGE);
-      this.data = brut ? { ...ETAT_INITIAL, ...JSON.parse(brut) } : { ...ETAT_INITIAL };
+      const stocke = brut ? JSON.parse(brut) : {};
+      this.data = { ...etatInitial(), ...stocke };
+      // on fusionne les réglages pour récupérer les nouvelles options par défaut
+      this.data.reglages = { ...REGLAGES_DEFAUT, ...(stocke.reglages || {}) };
     } catch (e) {
-      this.data = { ...ETAT_INITIAL };
+      this.data = etatInitial();
     }
     return this.data;
   },
@@ -114,7 +123,25 @@ const Store = {
   },
 
   reinitialiser() {
-    this.data = { ...ETAT_INITIAL };
+    this.data = etatInitial();
     localStorage.removeItem(CLE_STOCKAGE);
+  },
+
+  /* --- Sauvegarde / restauration --- */
+  exporter() {
+    return JSON.stringify(
+      { _app: "coach-basic-fit", _version: 1, _date: new Date().toISOString(), data: this.data },
+      null, 2
+    );
+  },
+
+  /* Restaure depuis un objet importé. Renvoie true si valide. */
+  importer(objet) {
+    const d = objet && objet.data ? objet.data : objet;
+    if (!d || typeof d !== "object" || !("historique" in d)) return false;
+    this.data = { ...etatInitial(), ...d };
+    this.data.reglages = { ...REGLAGES_DEFAUT, ...(d.reglages || {}) };
+    this.sauver();
+    return true;
   },
 };

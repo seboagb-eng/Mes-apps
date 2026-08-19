@@ -447,3 +447,42 @@ const NIVEAUX = {
   2: { nom: "Intermédiaire", desc: "6 mois à 2 ans" },
   3: { nom: "Confirmé",      desc: "Plus de 2 ans" },
 };
+
+/* ------------------------------------------------------------------ *
+ * AFFLUENCE — estimation type de la fréquentation d'une salle
+ * (0 = vide, 100 = bondé), par heure de 0 h à 23 h.
+ * Basé sur les tendances habituelles des salles de sport (pics du midi
+ * et de 17 h-20 h en semaine, matinée le week-end). C'est une ESTIMATION,
+ * pas des données en temps réel : chaque salle Basic Fit varie.
+ * ------------------------------------------------------------------ */
+const AFFLUENCE_SEMAINE = [
+  6, 5, 5, 5, 8, 15, 28, 46, 42, 32, 30, 38, 66, 60, 40, 36, 48, 78, 96, 90, 70, 46, 26, 12,
+];
+const AFFLUENCE_WEEKEND = [
+  6, 5, 4, 4, 5, 8, 14, 24, 34, 58, 82, 86, 72, 52, 40, 40, 46, 46, 40, 30, 22, 16, 10, 7,
+];
+/* nom + coefficient d'ajustement par jour (0 = lundi … 6 = dimanche) */
+const JOURS_SEMAINE = [
+  { nom: "Lundi",    court: "Lun", weekend: false, coef: 1.06 },
+  { nom: "Mardi",    court: "Mar", weekend: false, coef: 1.02 },
+  { nom: "Mercredi", court: "Mer", weekend: false, coef: 1.00 },
+  { nom: "Jeudi",    court: "Jeu", weekend: false, coef: 1.02 },
+  { nom: "Vendredi", court: "Ven", weekend: false, coef: 0.85 },
+  { nom: "Samedi",   court: "Sam", weekend: true,  coef: 1.00 },
+  { nom: "Dimanche", court: "Dim", weekend: true,  coef: 0.90 },
+];
+
+/* Renvoie les 24 valeurs d'affluence (0-100) pour un jour donné (0=lundi) */
+function affluenceJour(jour) {
+  const j = JOURS_SEMAINE[jour];
+  const base = j.weekend ? AFFLUENCE_WEEKEND : AFFLUENCE_SEMAINE;
+  return base.map((v) => Math.min(100, Math.round(v * j.coef)));
+}
+
+/* Qualifie un niveau d'affluence */
+function niveauAffluence(v) {
+  if (v < 30) return { txt: "Calme", classe: "aff-calme" };
+  if (v < 60) return { txt: "Modéré", classe: "aff-modere" };
+  if (v < 80) return { txt: "Chargé", classe: "aff-charge" };
+  return { txt: "Bondé", classe: "aff-bonde" };
+}

@@ -4,7 +4,7 @@
  * L'app reste utilisable hors ligne (salle en sous-sol, réseau faible…)
  * tout en récupérant la dernière version dès qu'il y a du réseau.
  */
-const CACHE = "coach-bf-v1";
+const CACHE = "coach-bf-v2";
 const FICHIERS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const FICHIERS = [
   "./js/data.js",
   "./js/illustrations.js",
   "./js/store.js",
+  "./js/photos.js",
   "./js/coach.js",
   "./js/app.js",
   "./manifest.webmanifest",
