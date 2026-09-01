@@ -3,40 +3,25 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGame } from '../context/GameContext';
 import Mascotte from '../components/Mascotte';
-
-const DUREE = 60;
-
-function melanger(tableau) {
-  const copie = [...tableau];
-  for (let i = copie.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copie[i], copie[j]] = [copie[j], copie[i]];
-  }
-  return copie;
-}
-
-function genererQuestion() {
-  const table = Math.floor(Math.random() * 10) + 1;
-  const n = Math.floor(Math.random() * 10) + 1;
-  const bonneReponse = table * n;
-  const propositions = new Set([bonneReponse]);
-  const ecarts = [table, -table, table * 2, -table * 2, 1, -1, 2, -2];
-  while (propositions.size < 4) {
-    const candidat = bonneReponse + ecarts[Math.floor(Math.random() * ecarts.length)];
-    if (candidat > 0) propositions.add(candidat);
-  }
-  return { table, n, bonneReponse, propositions: melanger([...propositions]) };
-}
+import { getNiveau } from '../lib/niveaux';
+import { genererQuestionAleatoire } from '../lib/questions';
+import { XP } from '../lib/progression';
+import { sonBon, sonMauvais, sonVictoire } from '../lib/sons';
 
 export default function Defi() {
   const router = useRouter();
-  const { state, saveState } = useGame();
+  const { state, enregistrerChrono } = useGame();
+  const niveau = getNiveau(state.classe);
+  const DUREE = niveau.duree;
+
   const scoreRef = useRef(0);
   const termineRef = useRef(false);
 
   const [secondes, setSecondes] = useState(DUREE);
   const [score, setScore] = useState(0);
-  const [question, setQuestion] = useState(() => genererQuestion());
+  const [serie, setSerie] = useState(0);
+  const [meilleureSerie, setMeilleureSerie] = useState(0);
+  const [question, setQuestion] = useState(() => genererQuestionAleatoire(niveau.tables, niveau.maxN));
   const [etatMascotte, setEtatMascotte] = useState('attente');
   const [verrouille, setVerrouille] = useState(false);
   const [choixSelectionne, setChoixSelectionne] = useState(null);
@@ -44,28 +29,38 @@ export default function Defi() {
 
   useEffect(() => { scoreRef.current = score; }, [score]);
 
+  // Corrige la durée si la classe est chargée après le premier rendu (avant de commencer).
   useEffect(() => {
-    const id = setInterval(() => {
-      setSecondes(s => (s <= 1 ? 0 : s - 1));
-    }, 1000);
+    if (!termineRef.current && scoreRef.current === 0) setSecondes(DUREE);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [DUREE]);
+
+  useEffect(() => {
+    const id = setInterval(() => setSecondes((s) => (s <= 1 ? 0 : s - 1)), 1000);
     return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
     if (secondes === 0 && !termineRef.current) {
       termineRef.current = true;
-      const record = Math.max(state.meilleurChrono || 0, scoreRef.current);
-      saveState({ ...state, meilleurChrono: record });
-      setResultat({ score: scoreRef.current, record });
+      const score = scoreRef.current;
+      const xpGagnee = score * XP.bonneReponseChrono;
+      const record = Math.max(state.meilleurChrono?.[niveau.id] || 0, score);
+      enregistrerChrono(niveau.id, score, xpGagnee);
+      sonVictoire(state.son);
+      setResultat({ score, record, xp: xpGagnee });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondes]);
 
   const rejouer = () => {
     termineRef.current = false;
     scoreRef.current = 0;
     setScore(0);
+    setSerie(0);
+    setMeilleureSerie(0);
     setSecondes(DUREE);
-    setQuestion(genererQuestion());
+    setQuestion(genererQuestionAleatoire(niveau.tables, niveau.maxN));
     setEtatMascotte('attente');
     setVerrouille(false);
     setChoixSelectionne(null);
@@ -77,11 +72,21 @@ export default function Defi() {
     setVerrouille(true);
     setChoixSelectionne(proposition);
     const correct = proposition === question.bonneReponse;
-    if (correct) setScore(s => s + 1);
+    if (correct) {
+      setScore((s) => s + 1);
+      setSerie((s) => {
+        const suivante = s + 1;
+        setMeilleureSerie((m) => Math.max(m, suivante));
+        return suivante;
+      });
+    } else {
+      setSerie(0);
+    }
     setEtatMascotte(correct ? 'joie' : 'oups');
+    if (correct) sonBon(state.son); else sonMauvais(state.son);
 
     setTimeout(() => {
-      setQuestion(genererQuestion());
+      setQuestion(genererQuestionAleatoire(niveau.tables, niveau.maxN));
       setChoixSelectionne(null);
       setEtatMascotte('attente');
       setVerrouille(false);
@@ -92,17 +97,22 @@ export default function Defi() {
     return (
       <div className="ecran">
         <h2>Défi terminé !</h2>
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
           <Mascotte animalId={state.compagnon} etatReponse="joie" />
         </div>
         <p style={{ textAlign: 'center', fontFamily: "'Fredoka',sans-serif", fontSize: 48, color: 'var(--feuille-fonce)', margin: '6px 0 0' }}>
           {resultat.score}
         </p>
-        <p style={{ textAlign: 'center', fontWeight: 800, fontSize: 15, margin: '0 0 4px' }}>bonnes réponses en 60 secondes</p>
-        <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 13, opacity: .7 }}>
-          Meilleur score : {resultat.record}
+        <p style={{ textAlign: 'center', fontWeight: 800, fontSize: 15, margin: '0 0 4px' }}>
+          bonnes réponses en {DUREE} secondes
         </p>
-        <button className="btn jaune" onClick={rejouer} style={{ marginTop: 20 }}>Rejouer</button>
+        <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 13, opacity: 0.7 }}>
+          Meilleure série : {meilleureSerie} 🔥 · +{resultat.xp} XP
+        </p>
+        <p style={{ textAlign: 'center', fontWeight: 700, fontSize: 13, opacity: 0.7 }}>
+          Record ({niveau.label}) : {resultat.record}
+        </p>
+        <button className="btn jaune" onClick={rejouer} style={{ marginTop: 16 }}>Rejouer</button>
         <button className="btn pale" onClick={() => router.push('/')}>Retour à l'accueil</button>
       </div>
     );
@@ -114,7 +124,7 @@ export default function Defi() {
         <h2>Défi du chrono</h2>
         <span style={{
           fontFamily: "'Fredoka',sans-serif", fontSize: 26, fontWeight: 600,
-          color: secondes <= 10 ? 'var(--coquelicot)' : 'var(--feuille-fonce)'
+          color: secondes <= 10 ? 'var(--coquelicot)' : 'var(--feuille-fonce)',
         }}>
           {secondes}s
         </span>
@@ -123,11 +133,12 @@ export default function Defi() {
         <div style={{ width: `${(secondes / DUREE) * 100}%`, background: secondes <= 10 ? 'var(--coquelicot)' : 'var(--feuille)' }} />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 6px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 4px' }}>
         <Mascotte animalId={state.compagnon} etatReponse={etatMascotte} />
       </div>
-      <div style={{ textAlign: 'center', fontWeight: 800, fontSize: 13, opacity: .7, marginBottom: 4 }}>
-        Score : {score}
+      <div className="score-ligne">
+        <span>Score : {score}</span>
+        {serie >= 3 && <span className="combo">Série {serie} 🔥</span>}
       </div>
 
       <AnimatePresence mode="wait">
@@ -140,7 +151,7 @@ export default function Defi() {
         >
           <div className="question">{question.table} × {question.n} = ?</div>
           <div className="reponses">
-            {question.propositions.map(p => {
+            {question.propositions.map((p) => {
               let classe = 'reponse';
               if (verrouille && p === question.bonneReponse) classe += ' correcte';
               else if (verrouille && p === choixSelectionne) classe += ' fausse';
