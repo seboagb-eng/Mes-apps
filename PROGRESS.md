@@ -89,6 +89,21 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 2 (composants) ✅
+- **`Icone.tsx`** : jeu d'icônes SVG inline (stroke 2.2, aria-hidden) — 13 icônes : accueil, activite, relances, compte, retour, fermer, plus, moins, whatsapp, photo, recherche, check, deconnexion.
+- **`Navigation.tsx`** refait : 4 onglets (Accueil /app, Activité /app/activite, Relances /app/recouvrement, Compte /app/reglages). Pastille `late.strong` sur Relances = `retardCount`. Bureau (md:) : sidebar fixe 240px fond `ink`, liens actifs `primary`, `Se déconnecter` en bas.
+- **`AppLayout`** mis à jour : query `retardCount` (créances échues), structure `md:flex` + `md:ml-60`, en-tête mobile/bureau séparés, bannières `late.tint` au lieu de `amber-50`.
+- **`ChoixChips.tsx`** : radiogroup accessible (role="radiogroup"/radio/aria-checked), chips `.chip`/`.chip-on`.
+- **`Segmente.tsx`** : contrôle segmenté accessible (même pattern), classe `.segmented`.
+- **`Interrupteur.tsx`** : role="switch", 52×32px, on=#2D2A9E, off=#C9CBC4.
+- **`PaveNumerique.tsx`** : pavé numérique 1–9/000/0/⌫, `<output aria-live="polite">`, `<input type="hidden">` pour formulaire, max 9 chiffres.
+- **`CarteVerdict.tsx`** : 3 états (bonne/surveiller/tendue) avec fonds/badges des nouvelles couleurs.
+- **`BarreRepartition.tsx`** : barre 14px avec segments séparés, légende chiffrée obligatoire (couleur non seule), role="img" + aria-label.
+- **`LigneOperation.tsx`** : avatar 40px, titre+sous-titre, montant droite, min-h 60px, 3 types.
+- **`StatCard`** : montant en `font-display`, variante `alerte` (late.tint).
+- Emoji `⚠️` retiré des alertes du dashboard.
+- 30/30 tests, build vert.
+
 ### Refonte design — Phase 1 (tokens + polices) ✅
 - Branche `refonte-design` dédiée (jamais fusionnée directement sur `main`).
 - Docs de refonte déposées : `docs/REFONTE_DESIGN.md` + maquettes HTML dans `docs/design/maquettes/`.

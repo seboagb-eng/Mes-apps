@@ -21,7 +21,7 @@ export default async function DashboardPage() {
                 a.type === "danger" ? "bg-red-50 text-danger" : "bg-amber-50 text-warning"
               }`}
             >
-              ⚠️ {a.texte}
+              {a.texte}
             </div>
           ))}
         </div>

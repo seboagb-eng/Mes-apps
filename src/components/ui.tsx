@@ -1,35 +1,39 @@
 import { formatFCFA } from "@/lib/format";
 
-/** Carte d'indicateur (montant FCFA + libellé). */
+/** Carte d'indicateur (montant FCFA + libellé). Variante alerte : fond late.tint. */
 export function StatCard({
   label,
   montant,
-  accent = "text-gray-900",
+  accent = "text-ink",
   hint,
+  alerte = false,
 }: {
   label: string;
   montant: number;
   accent?: string;
   hint?: string;
+  alerte?: boolean;
 }) {
   return (
-    <div className="card">
-      <div className="text-xs font-medium text-gray-500">{label}</div>
-      <div className={`mt-1 text-lg font-bold tabular-nums ${accent}`}>{formatFCFA(montant)}</div>
-      {hint ? <div className="mt-0.5 text-xs text-gray-400">{hint}</div> : null}
+    <div className={`card ${alerte ? "bg-late-tint" : ""}`}>
+      <div className="text-xs font-semibold uppercase tracking-wide text-muted">{label}</div>
+      <div className={`mt-1 font-display text-xl font-bold tabular-nums ${accent}`}>
+        {formatFCFA(montant)}
+      </div>
+      {hint ? <div className="mt-0.5 text-xs text-muted">{hint}</div> : null}
     </div>
   );
 }
 
 /** Titre de section. */
 export function TitreSection({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-3 text-base font-bold text-gray-800">{children}</h2>;
+  return <h2 className="mb-3 text-base font-bold text-ink">{children}</h2>;
 }
 
 /** État vide avec message. */
 export function EtatVide({ texte }: { texte: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-200 py-10 text-center text-sm text-gray-400">
+    <div className="rounded-2xl border border-dashed border-line py-10 text-center text-sm text-muted">
       {texte}
     </div>
   );
