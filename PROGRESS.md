@@ -148,6 +148,20 @@
 - Tous les `#0B5FFF` remplacés dans `Graphiques.tsx` et `global-error.tsx`.
 - Build vert (30/30 tests, `npm run build` sans erreur).
 
+### Refonte design — Phase 7 (Relances, Activité, Compte) ✅
+- **`/app/recouvrement`** redesigné : carte "Argent dehors" bg-ink (total + montant en retard `#FFB48A`),
+  liste clients radio-select (badge `bg-late-tint` si retard, `bg-primary-tint ring-primary` si sélectionné),
+  panneau encaissement secondaire, segmenté Ton du message (Courtois/Ferme/Dernier rappel),
+  aperçu WhatsApp (`#D9FDD3` sur `#EAE6DF`), CTA `btn-whatsapp`. `RecouvrementUI.tsx` client.
+- **`/app/activite`** (nouvelle route) : barre de recherche, chips filtres Tout/Ventes/Dépenses/Crédits,
+  stats 7 jours (entrées success / sorties ink), feed groupé par jour (icônes colorées par type,
+  Ventes `#E3F4E8/#0F7A4A`, Dépenses divider/ink, Crédits late-tint/late-text). `ActiviteClient.tsx`.
+- **`/app/reglages`** → page "Compte" redesignée : avatar initiales `bg-primary` 52px `rounded-[14px]`,
+  carte abonnement `bg-ink` (barre de progression essai `#B9B7F2`/`#2C303A`, bouton activer `bg-surface`),
+  "Où vos clients vous paient" (comptes banque/momo), "Relances automatiques" (3 `Interrupteur` J0/J+3/J+10),
+  équipe + export + changer mot de passe, déconnexion `text-late-text`. `RelancesAuto.tsx` client.
+- 30/30 tests, build vert (20 routes dont `/app/activite` nouvelle).
+
 ## 🔧 À faire ensuite (ordre conseillé)
 1. **Créer le projet Supabase** et exécuter les migrations (voir `docs/SUPABASE.md`).
 2. Brancher les clés dans `.env.local`, tester l'inscription → onboarding → dashboard.
