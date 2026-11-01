@@ -89,6 +89,14 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 3 (landing page) ✅
+- Page `/` entièrement réécrite : header PILOT + hero avec maquette téléphone HTML/CSS, section
+  fonctionnement (bg-ink, bulles WhatsApp #D9FDD3), "3 questions" / "3 gestes" / bandeau FCFA,
+  tarif lu depuis `PLANS.business` (15 000 FCFA), appel final bg-ink + footer.
+- Responsive `flex-wrap` + `repeat(auto-fit, minmax(..., 1fr))`. Placeholders `[À FOURNIR]` pour
+  contact WhatsApp et mentions légales (à compléter manuellement).
+- 30/30 tests, build vert.
+
 ### Refonte design — Phase 2 (composants) ✅
 - **`Icone.tsx`** : jeu d'icônes SVG inline (stroke 2.2, aria-hidden) — 13 icônes : accueil, activite, relances, compte, retour, fermer, plus, moins, whatsapp, photo, recherche, check, deconnexion.
 - **`Navigation.tsx`** refait : 4 onglets (Accueil /app, Activité /app/activite, Relances /app/recouvrement, Compte /app/reglages). Pastille `late.strong` sur Relances = `retardCount`. Bureau (md:) : sidebar fixe 240px fond `ink`, liens actifs `primary`, `Se déconnecter` en bas.
