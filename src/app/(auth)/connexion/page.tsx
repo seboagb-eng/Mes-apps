@@ -4,51 +4,77 @@ import Link from "next/link";
 import { useFormState } from "react-dom";
 import { connexion } from "../actions";
 import BoutonSoumettre from "@/components/BoutonSoumettre";
+import { Icone } from "@/components/Icone";
 
 export default function ConnexionPage() {
   const [etat, action] = useFormState(connexion, { erreur: "" } as { erreur: string });
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
-      <Link href="/" className="mb-6 text-2xl font-extrabold text-primary">
-        PILOT
-      </Link>
-      <h1 className="mb-6 text-xl font-bold">Connexion</h1>
-
-      <form action={action} className="space-y-4">
-        <div>
-          <label className="label" htmlFor="email">
-            Email
-          </label>
-          <input id="email" name="email" type="email" required className="input" autoComplete="email" />
-        </div>
-        <div>
-          <label className="label" htmlFor="mot_de_passe">
-            Mot de passe
-          </label>
-          <input
-            id="mot_de_passe"
-            name="mot_de_passe"
-            type="password"
-            required
-            className="input"
-            autoComplete="current-password"
-          />
-        </div>
-
-        {etat?.erreur ? (
-          <p className="rounded-lg bg-red-50 p-3 text-sm text-danger">{etat.erreur}</p>
-        ) : null}
-
-        <BoutonSoumettre>Se connecter</BoutonSoumettre>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-gray-600">
-        Pas encore de compte ?{" "}
-        <Link href="/inscription" className="font-semibold text-primary">
-          Créer un compte
+    <div className="flex min-h-screen flex-col bg-ground font-sans text-ink">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-5">
+        <Link
+          href="/"
+          aria-label="Retour à l'accueil"
+          className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface text-ink"
+        >
+          <Icone nom="retour" taille={20} />
         </Link>
-      </p>
-    </main>
+        <span className="font-display text-xl font-bold text-primary">PILOT</span>
+      </div>
+
+      {/* Titre */}
+      <div className="flex flex-col gap-1.5 px-5 pt-5">
+        <h1 className="font-display text-[32px] font-extrabold leading-[1.05] tracking-tight">
+          Bon retour.
+        </h1>
+        <p className="text-sm text-muted">Connectez-vous à votre espace.</p>
+      </div>
+
+      {/* Formulaire */}
+      <form action={action} className="flex flex-1 flex-col">
+        <div className="flex-1 px-5 py-5">
+          <div className="flex flex-col gap-[18px]">
+            <label className="flex flex-col gap-1.5 text-sm font-bold text-ink">
+              Email
+              <input
+                name="email"
+                type="email"
+                required
+                className="input"
+                autoComplete="email"
+                placeholder="vous@exemple.bj"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm font-bold text-ink">
+              Mot de passe
+              <input
+                name="mot_de_passe"
+                type="password"
+                required
+                className="input"
+                autoComplete="current-password"
+                placeholder="Votre mot de passe"
+              />
+            </label>
+
+            {etat?.erreur ? (
+              <p className="rounded-xl bg-red-50 px-3 py-3 text-sm text-danger">{etat.erreur}</p>
+            ) : null}
+          </div>
+        </div>
+
+        {/* CTA fixe */}
+        <div className="flex flex-col gap-3 border-t border-divider bg-ground px-5 pb-8 pt-3.5">
+          <BoutonSoumettre>Se connecter</BoutonSoumettre>
+          <p className="text-center text-sm text-muted">
+            Pas encore de compte ?{" "}
+            <Link href="/inscription" className="font-bold text-primary">
+              Créer un compte
+            </Link>
+          </p>
+        </div>
+      </form>
+    </div>
   );
 }

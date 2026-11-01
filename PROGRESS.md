@@ -89,6 +89,79 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 6 (saisie rapide Vente + Dépense) ✅
+- **`/app/ventes/nouvelle`** : page dédiée saisie rapide — grand montant, boutons +5k/+10k/+25k/+50k,
+  chips mode (Espèces/MoMo/Moov/À crédit), champ client conditionnel, pavé 3×4, bouton
+  valider adaptatif (primary/late-text/disabled). Confirmation après save.
+- **`/app/tresorerie/depense`** : même principe — catégorie chips (8 options), segmenté source
+  compte, pavé, bouton bg-ink. Confirmation après save.
+- Composants : `SaisieVenteRapide.tsx` + `SaisieDepenseRapide.tsx` (modules respectifs).
+- Fix `queries.ts` : colonne `type` (non `type_compte`) sur accounts.
+- 30/30 tests, build vert (2 nouvelles routes).
+
+### Refonte design — Phase 5 (dashboard accueil) ✅
+- Dashboard `/app` entièrement redesigné : header date + nom entreprise + badge "En direct",
+  CarteVerdict (bonne/surveiller/tendue + phrase calculée), section "Où est mon argent ?"
+  (total + BarreRepartition + légende), 2 boutons rapides Vente/Dépense, stats mois
+  (Ventes/Dépenses/Marge), section "À relancer aujourd'hui" (top 5 créances en retard).
+- `queries.ts` : ajout `cashParType`, `margeMois`, `topRelances`, `verdict`. Logique verdict
+  : tendue si <10j de dépenses, surveiller si >2j sans vente, bonne sinon.
+- 30/30 tests, build vert.
+
+### Refonte design — Phase 4 (auth) ✅
+- **Inscription** restylée : fond `ground`, header (retour + chip 14 jours), titre Bricolage
+  Grotesque, fieldsets « Votre entreprise » / « Vous », chips `ChoixChips` pour secteur,
+  champ téléphone avec préfixe +229, email facultatif, CTA fixe en bas.
+- **Connexion** restylée : même langage, heading « Bon retour. », back + logo PILOT.
+- 30/30 tests, build vert.
+
+### Refonte design — Phase 3 (landing page) ✅
+- Page `/` entièrement réécrite : header PILOT + hero avec maquette téléphone HTML/CSS, section
+  fonctionnement (bg-ink, bulles WhatsApp #D9FDD3), "3 questions" / "3 gestes" / bandeau FCFA,
+  tarif lu depuis `PLANS.business` (15 000 FCFA), appel final bg-ink + footer.
+- Responsive `flex-wrap` + `repeat(auto-fit, minmax(..., 1fr))`. Placeholders `[À FOURNIR]` pour
+  contact WhatsApp et mentions légales (à compléter manuellement).
+- 30/30 tests, build vert.
+
+### Refonte design — Phase 2 (composants) ✅
+- **`Icone.tsx`** : jeu d'icônes SVG inline (stroke 2.2, aria-hidden) — 13 icônes : accueil, activite, relances, compte, retour, fermer, plus, moins, whatsapp, photo, recherche, check, deconnexion.
+- **`Navigation.tsx`** refait : 4 onglets (Accueil /app, Activité /app/activite, Relances /app/recouvrement, Compte /app/reglages). Pastille `late.strong` sur Relances = `retardCount`. Bureau (md:) : sidebar fixe 240px fond `ink`, liens actifs `primary`, `Se déconnecter` en bas.
+- **`AppLayout`** mis à jour : query `retardCount` (créances échues), structure `md:flex` + `md:ml-60`, en-tête mobile/bureau séparés, bannières `late.tint` au lieu de `amber-50`.
+- **`ChoixChips.tsx`** : radiogroup accessible (role="radiogroup"/radio/aria-checked), chips `.chip`/`.chip-on`.
+- **`Segmente.tsx`** : contrôle segmenté accessible (même pattern), classe `.segmented`.
+- **`Interrupteur.tsx`** : role="switch", 52×32px, on=#2D2A9E, off=#C9CBC4.
+- **`PaveNumerique.tsx`** : pavé numérique 1–9/000/0/⌫, `<output aria-live="polite">`, `<input type="hidden">` pour formulaire, max 9 chiffres.
+- **`CarteVerdict.tsx`** : 3 états (bonne/surveiller/tendue) avec fonds/badges des nouvelles couleurs.
+- **`BarreRepartition.tsx`** : barre 14px avec segments séparés, légende chiffrée obligatoire (couleur non seule), role="img" + aria-label.
+- **`LigneOperation.tsx`** : avatar 40px, titre+sous-titre, montant droite, min-h 60px, 3 types.
+- **`StatCard`** : montant en `font-display`, variante `alerte` (late.tint).
+- Emoji `⚠️` retiré des alertes du dashboard.
+- 30/30 tests, build vert.
+
+### Refonte design — Phase 1 (tokens + polices) ✅
+- Branche `refonte-design` dédiée (jamais fusionnée directement sur `main`).
+- Docs de refonte déposées : `docs/REFONTE_DESIGN.md` + maquettes HTML dans `docs/design/maquettes/`.
+- **Tailwind** : nouvelle palette complète (ink, ground, surface, line, divider, muted, primary/dark/mid/light/tint, success, late, watch, disabled, danger). Alias `warning → late.text` pour compatibilité ascendante jusqu'à Phase 2.
+- **Polices** : Bricolage Grotesque (500/700/800, variable `--font-display`) + Manrope (400–800, variable `--font-sans`) via `next/font/google` (auto-hébergées, `display: swap`).
+- **globals.css** réécrits : `.btn-primary`, `.btn-primary-lg`, `.btn-secondary`, `.btn-dark`, `.btn-whatsapp`, `.btn-credit`, `.btn-danger`, `.card` (sans ombre ni bordure), `.input` (52px, 16px min), `.label`, `.badge`, `.chip` / `.chip-on`, `.segmented`.
+- `theme_color` → `#2D2A9E` dans `layout.tsx` (viewport), `public/manifest.webmanifest`, icône SVG.
+- Tous les `#0B5FFF` remplacés dans `Graphiques.tsx` et `global-error.tsx`.
+- Build vert (30/30 tests, `npm run build` sans erreur).
+
+### Refonte design — Phase 7 (Relances, Activité, Compte) ✅
+- **`/app/recouvrement`** redesigné : carte "Argent dehors" bg-ink (total + montant en retard `#FFB48A`),
+  liste clients radio-select (badge `bg-late-tint` si retard, `bg-primary-tint ring-primary` si sélectionné),
+  panneau encaissement secondaire, segmenté Ton du message (Courtois/Ferme/Dernier rappel),
+  aperçu WhatsApp (`#D9FDD3` sur `#EAE6DF`), CTA `btn-whatsapp`. `RecouvrementUI.tsx` client.
+- **`/app/activite`** (nouvelle route) : barre de recherche, chips filtres Tout/Ventes/Dépenses/Crédits,
+  stats 7 jours (entrées success / sorties ink), feed groupé par jour (icônes colorées par type,
+  Ventes `#E3F4E8/#0F7A4A`, Dépenses divider/ink, Crédits late-tint/late-text). `ActiviteClient.tsx`.
+- **`/app/reglages`** → page "Compte" redesignée : avatar initiales `bg-primary` 52px `rounded-[14px]`,
+  carte abonnement `bg-ink` (barre de progression essai `#B9B7F2`/`#2C303A`, bouton activer `bg-surface`),
+  "Où vos clients vous paient" (comptes banque/momo), "Relances automatiques" (3 `Interrupteur` J0/J+3/J+10),
+  équipe + export + changer mot de passe, déconnexion `text-late-text`. `RelancesAuto.tsx` client.
+- 30/30 tests, build vert (20 routes dont `/app/activite` nouvelle).
+
 ## 🔧 À faire ensuite (ordre conseillé)
 1. **Créer le projet Supabase** et exécuter les migrations (voir `docs/SUPABASE.md`).
 2. Brancher les clés dans `.env.local`, tester l'inscription → onboarding → dashboard.

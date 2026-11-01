@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PILOT — Compte</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2D2A9E}a:hover{color:#1E1B73}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #F3F4F1; font-family: Manrope, system-ui, sans-serif; color: #10131A; display: flex; flex-direction: column">
+
+  <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px 18px 24px; display: flex; flex-direction: column; gap: 16px">
+    <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 26px">Compte</h1>
+
+    <div style="background: #FFFFFF; border-radius: 20px; padding: 16px; display: flex; align-items: center; gap: 14px">
+      <span style="width: 52px; height: 52px; border-radius: 14px; background: #2D2A9E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">EA</span>
+      <span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+        <b style="font-size: 17px">Ets Akpovi Distribution</b>
+        <span style="font-size: 13px; color: #565B66">Commerce / Boutique · +229 01 00 00 00 00</span>
+      </span>
+      <a href="#" style="font-size: 14px; font-weight: 800; text-decoration: none; padding: 12px 4px">Modifier</a>
+    </div>
+
+    <div style="background: #10131A; color: #FFFFFF; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline">
+        <b style="font-size: 15px">Essai gratuit</b>
+        <span style="font-size: 13px; font-weight: 700; color: #D4D5DA">10 jours restants</span>
+      </div>
+      <div aria-hidden="true" style="height: 8px; border-radius: 999px; background: #2C303A; overflow: hidden"><div style="width: 29%; height: 100%; background: #B9B7F2"></div></div>
+      <a href="#" style="display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 12px; background: #FFFFFF; color: #10131A; font-weight: 800; font-size: 15px; text-decoration: none">Activer — payer par Mobile Money</a>
+    </div>
+
+    <section aria-labelledby="enc" style="display: flex; flex-direction: column; gap: 8px">
+      <h2 id="enc" style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #565B66">Où vos clients vous paient</h2>
+      <div style="background: #FFFFFF; border-radius: 16px; padding: 4px 14px; display: flex; flex-direction: column">
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 56px; text-decoration: none; color: #10131A">
+          <span style="flex: 1; display: flex; flex-direction: column"><b style="font-size: 15px">MTN MoMo</b><span style="font-size: 13px; color: #565B66">+229 01 00 00 00 00</span></span>
+          <span style="font-size: 12px; font-weight: 800; color: #0F7A4A; background: #E3F4E8; padding: 4px 8px; border-radius: 999px">Actif</span>
+        </a>
+        <a href="#" style="display: flex; align-items: center; gap: 12px; min-height: 56px; text-decoration: none; color: #10131A; border-top: 1px solid #ECEDE9">
+          <span style="flex: 1; display: flex; flex-direction: column"><b style="font-size: 15px">Moov Money</b><span style="font-size: 13px; color: #565B66">Non configuré</span></span>
+          <span style="font-size: 14px; font-weight: 800; color: #2D2A9E">Ajouter</span>
+        </a>
+      </div>
+    </section>
+
+    <section aria-labelledby="auto" style="display: flex; flex-direction: column; gap: 8px">
+      <h2 id="auto" style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #565B66">Relances automatiques</h2>
+      <div style="background: #FFFFFF; border-radius: 16px; padding: 4px 14px; display: flex; flex-direction: column">
+        <sc-for list="{{rules}}" as="r" hint-placeholder-count="3">
+          <div style="{{r.rowStyle}}">
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><b style="font-size: 15px">{{r.title}}</b><span style="font-size: 13px; color: #565B66">{{r.sub}}</span></span>
+            <button type="button" role="switch" aria-checked="{{r.checked}}" aria-label="{{r.title}}" onClick="{{r.toggle}}" style="{{r.track}}"><span style="{{r.knob}}"></span></button>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin: 0; padding: 0 4px; font-size: 13px; color: #565B66">PILOT envoie depuis votre WhatsApp après votre validation du matin.</p>
+    </section>
+
+    <section aria-labelledby="more" style="display: flex; flex-direction: column; gap: 8px">
+      <h2 id="more" style="margin: 0; padding: 0 4px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #565B66">Équipe et comptabilité</h2>
+      <div style="background: #FFFFFF; border-radius: 16px; padding: 4px 14px; display: flex; flex-direction: column">
+        <a href="#" style="display: flex; align-items: center; justify-content: space-between; min-height: 56px; text-decoration: none; color: #10131A"><b style="font-size: 15px">Vendeurs</b><span style="font-size: 13px; color: #565B66">1 personne · Ajouter</span></a>
+        <a href="#" style="display: flex; align-items: center; justify-content: space-between; min-height: 56px; text-decoration: none; color: #10131A; border-top: 1px solid #ECEDE9"><b style="font-size: 15px">Modèles de messages</b><span style="font-size: 13px; color: #565B66">3 tons</span></a>
+        <a href="#" style="display: flex; align-items: center; justify-content: space-between; min-height: 56px; text-decoration: none; color: #10131A; border-top: 1px solid #ECEDE9"><b style="font-size: 15px">Envoyer au comptable</b><span style="font-size: 13px; color: #565B66">Excel · PDF</span></a>
+      </div>
+    </section>
+
+    <a href="Main.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 48px; font-weight: 800; font-size: 15px; color: #8F3708; text-decoration: none">Se déconnecter</a>
+  </div>
+
+  <nav aria-label="Navigation" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: #FFFFFF; border-top: 1px solid #E2E3DE; padding: 6px 6px 14px">
+    <a href="Accueil.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 700; color: #565B66; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"></path></svg>Accueil</a>
+    <a href="Activite.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 700; color: #565B66; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l5-6 4 4 7-9"></path></svg>Activité</a>
+    <a href="Recouvrement.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 700; color: #565B66; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12z"></path></svg>Relances</a>
+    <a href="Compte.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 800; color: #2D2A9E; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Compte</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { on: { j0: true, j3: true, j10: false } };
+  }
+  renderVals() {
+    const defs = [
+      { id: 'j0', title: "Le jour de l'échéance", sub: 'Ton courtois' },
+      { id: 'j3', title: '3 jours après', sub: 'Ton ferme' },
+      { id: 'j10', title: '10 jours après', sub: 'Dernier rappel' }
+    ];
+    return {
+      rules: defs.map((d, i) => {
+        const on = !!this.state.on[d.id];
+        return {
+          ...d,
+          checked: on ? 'true' : 'false',
+          rowStyle: 'display: flex; align-items: center; gap: 12px; min-height: 60px; ' + (i > 0 ? 'border-top: 1px solid #ECEDE9;' : ''),
+          track: 'flex: none; width: 52px; height: 32px; border-radius: 999px; border: 0; padding: 3px; cursor: pointer; display: flex; ' + (on ? 'background: #2D2A9E; justify-content: flex-end;' : 'background: #C9CBC4; justify-content: flex-start;'),
+          knob: 'width: 26px; height: 26px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(16,19,26,0.25)',
+          toggle: () => this.setState({ on: { ...this.state.on, [d.id]: !on } })
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { formatFCFA } from "@/lib/format";
 
-const COULEURS = ["#0B5FFF", "#16A34A", "#D97706", "#DC2626", "#7C3AED", "#0891B2"];
+const COULEURS = ["#2D2A9E", "#0F7A4A", "#E0661F", "#DC2626", "#7C3AED", "#0891B2"];
 
 const fcfaCourt = (n: number) =>
   n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${Math.round(n / 1000)}k` : `${n}`;
@@ -25,14 +25,14 @@ export function GraphiqueCA({ data }: { data: { semaine: string; montant: number
       <AreaChart data={data} margin={{ top: 10, right: 8, left: -8, bottom: 0 }}>
         <defs>
           <linearGradient id="grad-ca" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#0B5FFF" stopOpacity={0.35} />
-            <stop offset="95%" stopColor="#0B5FFF" stopOpacity={0} />
+            <stop offset="5%" stopColor="#2D2A9E" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#2D2A9E" stopOpacity={0} />
           </linearGradient>
         </defs>
         <XAxis dataKey="semaine" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
         <YAxis tickFormatter={fcfaCourt} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={40} />
         <Tooltip formatter={(v: number) => formatFCFA(v)} labelStyle={{ fontSize: 12 }} />
-        <Area type="monotone" dataKey="montant" stroke="#0B5FFF" strokeWidth={2} fill="url(#grad-ca)" />
+        <Area type="monotone" dataKey="montant" stroke="#2D2A9E" strokeWidth={2} fill="url(#grad-ca)" />
       </AreaChart>
     </ResponsiveContainer>
   );

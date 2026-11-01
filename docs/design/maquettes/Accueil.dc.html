@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PILOT — Accueil</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2D2A9E}a:hover{color:#1E1B73}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #F3F4F1; font-family: Manrope, system-ui, sans-serif; color: #10131A; display: flex; flex-direction: column">
+
+  <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px 18px 24px; display: flex; flex-direction: column; gap: 16px">
+
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 13px; font-weight: 600; color: #565B66">Mardi 3 novembre</span>
+        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px">Ets Akpovi</span>
+      </div>
+      <span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0F7A4A; background: #E3F4E8; padding: 6px 10px; border-radius: 999px">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #0F7A4A"></span>À jour il y a 2 min
+      </span>
+    </div>
+
+    <div style="{{verdictBox}}">
+      <span style="{{verdictTag}}">{{verdictLabel}}</span>
+      <p style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; line-height: 1.2">{{verdictText}}</p>
+    </div>
+
+    <section aria-labelledby="tres" style="background: #FFFFFF; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 id="tres" style="margin: 0; font-size: 14px; font-weight: 700; color: #565B66">Où est mon argent ?</h2>
+        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 38px; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums">6 100 000 <span style="font-size: 16px; font-weight: 700; color: #565B66">FCFA</span></span>
+      </div>
+      <div role="img" aria-label="Répartition : banque 2,6 M, Mobile Money 1,5 M, caisse 0,76 M, chez les clients 1,24 M" style="display: flex; height: 14px; border-radius: 999px; overflow: hidden; gap: 3px">
+        <span style="flex: 260 1 0; background: #1E1B73"></span>
+        <span style="flex: 150 1 0; background: #4B47C9"></span>
+        <span style="flex: 76 1 0; background: #A9A7EC"></span>
+        <span style="flex: 124 1 0; background: #E0661F"></span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; font-size: 13px">
+        <span style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #1E1B73"></span><span style="flex: 1">Banque</span><b style="font-variant-numeric: tabular-nums">2 600 000</b></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #4B47C9"></span><span style="flex: 1">Mobile Money</span><b style="font-variant-numeric: tabular-nums">1 500 000</b></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #A9A7EC"></span><span style="flex: 1">Caisse</span><b style="font-variant-numeric: tabular-nums">760 000</b></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #E0661F"></span><span style="flex: 1; color: #8F3708; font-weight: 700">Chez clients</span><b style="color: #8F3708; font-variant-numeric: tabular-nums">1 240 000</b></span>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <a href="Vente.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border-radius: 16px; background: #2D2A9E; color: #FFFFFF; font-weight: 800; font-size: 16px; text-decoration: none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Vente
+      </a>
+      <a href="Depense.dc.html" style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; border-radius: 16px; background: #FFFFFF; color: #10131A; font-weight: 800; font-size: 16px; text-decoration: none; border: 1.5px solid #D5D7D1">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg>Dépense
+      </a>
+    </div>
+
+    <section aria-labelledby="mois" style="background: #FFFFFF; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+      <h2 id="mois" style="margin: 0; font-size: 14px; font-weight: 700; color: #565B66">Novembre, à ce jour</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 12px; font-weight: 600; color: #565B66">Ventes</span>
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums">2,9 M</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 12px; font-weight: 600; color: #565B66">Dépenses</span>
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 19px; font-variant-numeric: tabular-nums">1,7 M</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 12px; font-weight: 600; color: #565B66">Marge</span>
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 19px; color: #0F7A4A; font-variant-numeric: tabular-nums">+1,2 M</span>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="rel" style="background: #FFFFFF; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <h2 id="rel" style="margin: 0; font-size: 14px; font-weight: 700; color: #565B66">À relancer aujourd'hui</h2>
+        <a href="Recouvrement.dc.html" style="font-size: 14px; font-weight: 800; text-decoration: none; padding: 10px 0">Tout voir</a>
+      </div>
+      <a href="Recouvrement.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #10131A; min-height: 48px">
+        <span style="width: 40px; height: 40px; border-radius: 12px; background: #FFE8DA; color: #8F3708; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px">MH</span>
+        <span style="flex: 1; display: flex; flex-direction: column"><b style="font-size: 15px">M. Hounkpè</b><span style="font-size: 13px; color: #8F3708; font-weight: 700">23 jours de retard</span></span>
+        <b style="font-size: 15px; font-variant-numeric: tabular-nums">185 000</b>
+      </a>
+      <a href="Recouvrement.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: #10131A; min-height: 48px">
+        <span style="width: 40px; height: 40px; border-radius: 12px; background: #FFE8DA; color: #8F3708; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px">BS</span>
+        <span style="flex: 1; display: flex; flex-direction: column"><b style="font-size: 15px">Boutique Sènan</b><span style="font-size: 13px; color: #8F3708; font-weight: 700">9 jours de retard</span></span>
+        <b style="font-size: 15px; font-variant-numeric: tabular-nums">200 000</b>
+      </a>
+    </section>
+  </div>
+
+  <nav aria-label="Navigation" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); background: #FFFFFF; border-top: 1px solid #E2E3DE; padding: 6px 6px 14px">
+    <a href="Accueil.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 800; color: #2D2A9E; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"></path></svg>Accueil</a>
+    <a href="Activite.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 700; color: #565B66; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l5-6 4 4 7-9"></path></svg>Activité</a>
+    <a href="Recouvrement.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 700; color: #565B66; text-decoration: none; position: relative">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12z"></path></svg>Relances<span style="position: absolute; top: 4px; right: 22px; min-width: 18px; height: 18px; border-radius: 9px; background: #B84A0E; color: #FFFFFF; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center">5</span></a>
+    <a href="Compte.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 52px; justify-content: center; font-size: 12px; font-weight: 700; color: #565B66; text-decoration: none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Compte</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sante":{"editor":"enum","options":["bonne","surveiller","tendue"],"default":"bonne"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.sante ?? 'bonne';
+    const v = {
+      bonne: { bg: '#10131A', fg: '#FFFFFF', tagBg: '#0F7A4A', tagFg: '#FFFFFF', label: 'Ça va bien', text: 'Vous avez vendu 12 % de plus que le mois dernier, à la même date.' },
+      surveiller: { bg: '#FFF3D6', fg: '#10131A', tagBg: '#8A5A00', tagFg: '#FFFFFF', label: 'À surveiller', text: 'Vos dépenses montent plus vite que vos ventes cette semaine.' },
+      tendue: { bg: '#FFE8DA', fg: '#10131A', tagBg: '#8F3708', tagFg: '#FFFFFF', label: 'Trésorerie tendue', text: 'Il vous reste 9 jours de dépenses. Relancez 1 240 000 FCFA dus.' }
+    }[s];
+    return {
+      verdictBox: 'background: ' + v.bg + '; color: ' + v.fg + '; border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 10px',
+      verdictTag: 'align-self: flex-start; background: ' + v.tagBg + '; color: ' + v.tagFg + '; font-size: 12px; font-weight: 800; padding: 6px 10px; border-radius: 999px',
+      verdictLabel: v.label,
+      verdictText: v.text
+    };
+  }
+}
+</script>
+</body>
+</html>
