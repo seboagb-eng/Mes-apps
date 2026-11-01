@@ -89,6 +89,13 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 4 (auth) ✅
+- **Inscription** restylée : fond `ground`, header (retour + chip 14 jours), titre Bricolage
+  Grotesque, fieldsets « Votre entreprise » / « Vous », chips `ChoixChips` pour secteur,
+  champ téléphone avec préfixe +229, email facultatif, CTA fixe en bas.
+- **Connexion** restylée : même langage, heading « Bon retour. », back + logo PILOT.
+- 30/30 tests, build vert.
+
 ### Refonte design — Phase 3 (landing page) ✅
 - Page `/` entièrement réécrite : header PILOT + hero avec maquette téléphone HTML/CSS, section
   fonctionnement (bg-ink, bulles WhatsApp #D9FDD3), "3 questions" / "3 gestes" / bandeau FCFA,
