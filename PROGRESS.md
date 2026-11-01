@@ -89,6 +89,15 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 5 (dashboard accueil) ✅
+- Dashboard `/app` entièrement redesigné : header date + nom entreprise + badge "En direct",
+  CarteVerdict (bonne/surveiller/tendue + phrase calculée), section "Où est mon argent ?"
+  (total + BarreRepartition + légende), 2 boutons rapides Vente/Dépense, stats mois
+  (Ventes/Dépenses/Marge), section "À relancer aujourd'hui" (top 5 créances en retard).
+- `queries.ts` : ajout `cashParType`, `margeMois`, `topRelances`, `verdict`. Logique verdict
+  : tendue si <10j de dépenses, surveiller si >2j sans vente, bonne sinon.
+- 30/30 tests, build vert.
+
 ### Refonte design — Phase 4 (auth) ✅
 - **Inscription** restylée : fond `ground`, header (retour + chip 14 jours), titre Bricolage
   Grotesque, fieldsets « Votre entreprise » / « Vous », chips `ChoixChips` pour secteur,
