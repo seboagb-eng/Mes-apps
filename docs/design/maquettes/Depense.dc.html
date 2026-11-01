@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PILOT — Nouvelle dépense</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2D2A9E}a:hover{color:#1E1B73}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #F3F4F1; font-family: Manrope, system-ui, sans-serif; color: #10131A; display: flex; flex-direction: column">
+
+  <sc-if value="{{editing}}" hint-placeholder-val="{{ true }}">
+    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+      <div style="padding: 20px 18px 0; display: flex; align-items: center; justify-content: space-between">
+        <a href="Accueil.dc.html" aria-label="Fermer" style="width: 44px; height: 44px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #10131A">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </a>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">Nouvelle dépense</h1>
+        <button type="button" aria-label="Photographier le reçu" style="width: 44px; height: 44px; border-radius: 12px; background: #FFFFFF; border: 0; display: flex; align-items: center; justify-content: center; color: #10131A; cursor: pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+        </button>
+      </div>
+
+      <div style="padding: 14px 18px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px">
+        <output aria-live="polite" style="{{amountStyle}}">{{amountText}}</output>
+        <span style="font-size: 14px; font-weight: 700; color: #565B66">FCFA</span>
+      </div>
+
+      <div style="padding: 0 18px; display: flex; flex-direction: column; gap: 8px">
+        <span id="cat" style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #565B66">Pour quoi ?</span>
+        <div role="radiogroup" aria-labelledby="cat" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{cats}}" as="c" hint-placeholder-count="8">
+            <button type="button" role="radio" aria-checked="{{c.checked}}" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="padding: 12px 18px 0; display: flex; flex-direction: column; gap: 8px">
+        <span id="src" style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #565B66">Payé depuis</span>
+        <div role="radiogroup" aria-labelledby="src" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: #E2E3DE; padding: 4px; border-radius: 14px">
+          <sc-for list="{{srcs}}" as="s" hint-placeholder-count="4">
+            <button type="button" role="radio" aria-checked="{{s.checked}}" onClick="{{s.pick}}" style="{{s.style}}">{{s.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="flex: 1; min-height: 0; padding: 12px 18px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px">
+        <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+          <button type="button" aria-label="{{k.aria}}" onClick="{{k.press}}" style="border: 0; border-radius: 14px; background: #FFFFFF; font: 700 24px 'Bricolage Grotesque', sans-serif; color: #10131A; cursor: pointer; min-height: 44px">{{k.label}}</button>
+        </sc-for>
+      </div>
+
+      <div style="padding: 12px 18px 22px">
+        <button type="button" onClick="{{save}}" style="{{saveStyle}}">Enregistrer la dépense</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+    <div style="flex: 1; padding: 24px 18px 22px; display: flex; flex-direction: column; gap: 16px">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center">
+        <span style="width: 72px; height: 72px; border-radius: 50%; background: #10131A; display: flex; align-items: center; justify-content: center">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>
+        </span>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 40px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">− {{amountText}} <span style="font-size: 18px">FCFA</span></h1>
+        <p style="margin: 0; font-size: 16px; font-weight: 600; color: #464B55">{{doneText}}</p>
+      </div>
+      <div style="background: #FFFFFF; border-radius: 20px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; font-weight: 700; color: #565B66">{{catMonthLabel}}</span>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; font-variant-numeric: tabular-nums">[TOTAL] FCFA</span>
+          <span style="font-size: 13px; font-weight: 700; color: #565B66">[VS MOIS DERNIER]</span>
+        </div>
+      </div>
+      <button type="button" onClick="{{again}}" style="min-height: 56px; border: 0; border-radius: 14px; background: #2D2A9E; color: #FFFFFF; font: 800 17px Manrope, sans-serif; cursor: pointer">Autre dépense</button>
+      <a href="Accueil.dc.html" style="text-align: center; font-weight: 700; font-size: 15px; padding: 10px">Retour à l'accueil</a>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { amount: '15000', cat: 'Transport', src: 'Caisse', done: false };
+  }
+  fmt(s) {
+    if (!s) return '0';
+    return String(Number(s)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+  renderVals() {
+    const st = this.state;
+    const push = (d) => {
+      const next = (st.amount === '0' ? '' : st.amount) + d;
+      if (next.length <= 9) this.setState({ amount: String(Number(next)) });
+    };
+    const keys = ['1','2','3','4','5','6','7','8','9','000','0','⌫'].map((k) => ({
+      label: k,
+      aria: k === '⌫' ? 'Effacer' : k,
+      press: () => k === '⌫' ? this.setState({ amount: st.amount.slice(0, -1) || '0' }) : push(k)
+    }));
+    const catNames = ['Stock', 'Transport', 'Salaires', 'Loyer', 'Électricité', 'Crédit tél.', 'Impôts', 'Autre'];
+    const cats = catNames.map((c) => {
+      const on = st.cat === c;
+      return {
+        label: c,
+        checked: on ? 'true' : 'false',
+        style: 'min-height: 48px; padding: 0 4px; border-radius: 12px; font: 800 12px Manrope, sans-serif; cursor: pointer; ' + (on ? 'background: #10131A; color: #FFFFFF; border: 1.5px solid #10131A;' : 'background: #FFFFFF; color: #10131A; border: 1.5px solid #D5D7D1;'),
+        pick: () => this.setState({ cat: c })
+      };
+    });
+    const srcs = ['Caisse', 'MoMo', 'Moov', 'Banque'].map((s) => {
+      const on = st.src === s;
+      return {
+        label: s,
+        checked: on ? 'true' : 'false',
+        style: 'min-height: 44px; border: 0; border-radius: 10px; font: 800 13px Manrope, sans-serif; cursor: pointer; ' + (on ? 'background: #FFFFFF; color: #10131A; box-shadow: 0 1px 3px rgba(16,19,26,0.15);' : 'background: transparent; color: #464B55;'),
+        pick: () => this.setState({ src: s })
+      };
+    });
+    const empty = Number(st.amount || 0) === 0;
+    return {
+      editing: !st.done,
+      done: st.done,
+      keys, cats, srcs,
+      amountText: this.fmt(st.amount),
+      amountStyle: 'font-family: \'Bricolage Grotesque\', sans-serif; font-weight: 800; font-size: 52px; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; color: ' + (empty ? '#8A8F99' : '#10131A'),
+      saveStyle: 'width: 100%; min-height: 58px; border: 0; border-radius: 14px; font: 800 17px Manrope, sans-serif; cursor: pointer; color: #FFFFFF; background: ' + (empty ? '#6B7079' : '#10131A'),
+      save: () => { if (!empty) this.setState({ done: true }); },
+      doneText: st.cat + ', payé depuis ' + (st.src === 'Caisse' ? 'la caisse' : st.src === 'Banque' ? 'la banque' : st.src) + '.',
+      catMonthLabel: st.cat + ' ce mois-ci',
+      again: () => this.setState({ amount: '0', cat: 'Stock', src: 'Caisse', done: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

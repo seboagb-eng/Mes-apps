@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PILOT — Nouvelle vente</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2D2A9E}a:hover{color:#1E1B73}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #F3F4F1; font-family: Manrope, system-ui, sans-serif; color: #10131A; display: flex; flex-direction: column">
+
+  <sc-if value="{{editing}}" hint-placeholder-val="{{ true }}">
+    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column">
+      <div style="padding: 20px 18px 0; display: flex; align-items: center; justify-content: space-between">
+        <a href="Accueil.dc.html" aria-label="Fermer" style="width: 44px; height: 44px; border-radius: 12px; background: #FFFFFF; display: flex; align-items: center; justify-content: center; color: #10131A">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </a>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">Nouvelle vente</h1>
+        <span style="width: 44px"></span>
+      </div>
+
+      <div style="padding: 18px 18px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px">
+        <output aria-live="polite" style="{{amountStyle}}">{{amountText}}</output>
+        <span style="font-size: 14px; font-weight: 700; color: #565B66">FCFA</span>
+      </div>
+
+      <div style="padding: 0 18px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap">
+        <sc-for list="{{quick}}" as="q" hint-placeholder-count="4">
+          <button type="button" onClick="{{q.pick}}" style="min-height: 40px; padding: 0 12px; border-radius: 999px; border: 1.5px solid #D5D7D1; background: #FFFFFF; font: 700 13px Manrope, sans-serif; color: #10131A; cursor: pointer">{{q.label}}</button>
+        </sc-for>
+      </div>
+
+      <div style="padding: 16px 18px 0; display: flex; flex-direction: column; gap: 8px">
+        <span id="pay" style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #565B66">Payé comment ?</span>
+        <div role="radiogroup" aria-labelledby="pay" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+          <sc-for list="{{modes}}" as="m" hint-placeholder-count="4">
+            <button type="button" role="radio" aria-checked="{{m.checked}}" onClick="{{m.pick}}" style="{{m.style}}">{{m.label}}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{credit}}" hint-placeholder-val="{{ false }}">
+          <label style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border-radius: 12px; background: #FFE8DA; font-size: 14px; font-weight: 700; color: #8F3708">Client
+            <input type="text" placeholder="Nom ou téléphone" style="flex: 1; min-width: 0; height: 36px; border: 0; border-radius: 8px; padding: 0 10px; font: 600 15px Manrope, sans-serif; color: #10131A; background: #FFFFFF">
+          </label>
+        </sc-if>
+      </div>
+
+      <div style="flex: 1; min-height: 0; padding: 14px 18px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 6px">
+        <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+          <button type="button" aria-label="{{k.aria}}" onClick="{{k.press}}" style="border: 0; border-radius: 14px; background: #FFFFFF; font: 700 24px 'Bricolage Grotesque', sans-serif; color: #10131A; cursor: pointer; min-height: 48px">{{k.label}}</button>
+        </sc-for>
+      </div>
+
+      <div style="padding: 12px 18px 22px">
+        <button type="button" onClick="{{save}}" style="{{saveStyle}}">{{saveLabel}}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{done}}" hint-placeholder-val="{{ false }}">
+    <div style="flex: 1; padding: 24px 18px 22px; display: flex; flex-direction: column; gap: 16px">
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center">
+        <span style="width: 72px; height: 72px; border-radius: 50%; background: #0F7A4A; display: flex; align-items: center; justify-content: center">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>
+        </span>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 40px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums">{{amountText}} <span style="font-size: 18px">FCFA</span></h1>
+        <p style="margin: 0; font-size: 16px; font-weight: 600; color: #464B55">{{doneText}}</p>
+      </div>
+      <a href="#" style="display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #D5D7D1; color: #10131A; font-weight: 800; font-size: 16px; text-decoration: none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F7A4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12z"></path></svg>Envoyer le reçu sur WhatsApp</a>
+      <button type="button" onClick="{{again}}" style="min-height: 56px; border: 0; border-radius: 14px; background: #2D2A9E; color: #FFFFFF; font: 800 17px Manrope, sans-serif; cursor: pointer">Vente suivante</button>
+      <a href="Accueil.dc.html" style="text-align: center; font-weight: 700; font-size: 15px; padding: 10px">Retour à l'accueil</a>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { amount: '25000', mode: 'Espèces', done: false };
+  }
+  fmt(s) {
+    if (!s) return '0';
+    return String(Number(s)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+  renderVals() {
+    const st = this.state;
+    const push = (d) => {
+      const next = (st.amount === '0' ? '' : st.amount) + d;
+      if (next.length <= 9) this.setState({ amount: String(Number(next)) });
+    };
+    const keyDefs = ['1','2','3','4','5','6','7','8','9','000','0','⌫'];
+    const keys = keyDefs.map((k) => ({
+      label: k,
+      aria: k === '⌫' ? 'Effacer' : k,
+      press: () => k === '⌫' ? this.setState({ amount: st.amount.slice(0, -1) || '0' }) : push(k)
+    }));
+    const quickVals = [5000, 10000, 25000, 50000];
+    const quick = quickVals.map((v) => ({ label: '+' + this.fmt(String(v)), pick: () => this.setState({ amount: String(Number(st.amount || 0) + v) }) }));
+    const modeNames = ['Espèces', 'MoMo', 'Moov', 'À crédit'];
+    const modes = modeNames.map((m) => {
+      const on = st.mode === m;
+      const isCredit = m === 'À crédit';
+      return {
+        label: m,
+        checked: on ? 'true' : 'false',
+        style: 'min-height: 48px; border-radius: 12px; font: 800 13px Manrope, sans-serif; cursor: pointer; ' + (on ? (isCredit ? 'background: #8F3708; color: #FFFFFF; border: 1.5px solid #8F3708;' : 'background: #10131A; color: #FFFFFF; border: 1.5px solid #10131A;') : 'background: #FFFFFF; color: #10131A; border: 1.5px solid #D5D7D1;'),
+        pick: () => this.setState({ mode: m })
+      };
+    });
+    const empty = Number(st.amount || 0) === 0;
+    const credit = st.mode === 'À crédit';
+    return {
+      editing: !st.done,
+      done: st.done,
+      credit,
+      keys, quick, modes,
+      amountText: this.fmt(st.amount),
+      amountStyle: 'font-family: \'Bricolage Grotesque\', sans-serif; font-weight: 800; font-size: 56px; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; color: ' + (empty ? '#8A8F99' : '#10131A'),
+      saveLabel: credit ? 'Enregistrer la vente à crédit' : 'Enregistrer la vente',
+      saveStyle: 'width: 100%; min-height: 58px; border: 0; border-radius: 14px; font: 800 17px Manrope, sans-serif; cursor: pointer; color: #FFFFFF; background: ' + (empty ? '#6B7079' : (credit ? '#8F3708' : '#2D2A9E')),
+      save: () => { if (!empty) this.setState({ done: true }); },
+      doneText: credit ? 'Vente à crédit enregistrée. Elle apparaîtra dans vos relances à l’échéance.' : 'Vente encaissée en ' + st.mode + '. Votre trésorerie est à jour.',
+      again: () => this.setState({ amount: '0', mode: 'Espèces', done: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

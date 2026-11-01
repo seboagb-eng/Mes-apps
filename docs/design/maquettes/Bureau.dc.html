@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>PILOT — Accueil bureau</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F1}
+a{color:#2D2A9E}a:hover{color:#1E1B73}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; box-sizing: border-box; background: #F3F4F1; font-family: Manrope, system-ui, sans-serif; color: #10131A; display: flex; flex-wrap: wrap; align-items: stretch">
+
+  <aside style="flex: 1 1 220px; max-width: 260px; min-width: 200px; box-sizing: border-box; background: #10131A; color: #FFFFFF; padding: 24px 16px; display: flex; flex-direction: column; gap: 28px">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #FFFFFF; padding: 0 8px">
+      <span style="width: 34px; height: 34px; border-radius: 10px; background: #2D2A9E; display: flex; align-items: center; justify-content: center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l5-6 4 4 7-9"></path><path d="M15 6h5v5"></path></svg>
+      </span>
+      <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 20px">PILOT</span>
+    </a>
+    <nav aria-label="Principale" style="display: flex; flex-direction: column; gap: 4px">
+      <a href="Bureau.dc.html" aria-current="page" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; background: #2D2A9E; color: #FFFFFF; font-weight: 800; font-size: 15px; text-decoration: none">Accueil</a>
+      <a href="Activite.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #D4D5DA; font-weight: 700; font-size: 15px; text-decoration: none">Activité</a>
+      <a href="Recouvrement.dc.html" style="display: flex; align-items: center; justify-content: space-between; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #D4D5DA; font-weight: 700; font-size: 15px; text-decoration: none">Relances <span style="min-width: 22px; height: 22px; border-radius: 11px; background: #B84A0E; color: #FFFFFF; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center">5</span></a>
+      <a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #D4D5DA; font-weight: 700; font-size: 15px; text-decoration: none">Clients</a>
+      <a href="#" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #D4D5DA; font-weight: 700; font-size: 15px; text-decoration: none">Rapports</a>
+      <a href="Compte.dc.html" style="display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: #D4D5DA; font-weight: 700; font-size: 15px; text-decoration: none">Compte</a>
+    </nav>
+  </aside>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 28px clamp(16px, 3vw, 40px) 48px; display: flex; flex-direction: column; gap: 20px">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 14px; font-weight: 600; color: #565B66">Mardi 3 novembre · Ets Akpovi Distribution</span>
+        <h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -0.02em">Comment va ma boîte ?</h1>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <a href="Vente.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 12px; background: #2D2A9E; color: #FFFFFF; font-weight: 800; font-size: 15px; text-decoration: none">+ Vente</a>
+        <a href="Depense.dc.html" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 20px; border-radius: 12px; background: #FFFFFF; border: 1.5px solid #D5D7D1; color: #10131A; font-weight: 800; font-size: 15px; text-decoration: none">− Dépense</a>
+      </div>
+    </header>
+
+    <div style="background: #10131A; color: #FFFFFF; border-radius: 20px; padding: 18px 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+      <span style="background: #0F7A4A; font-size: 12px; font-weight: 800; padding: 6px 10px; border-radius: 999px">Ça va bien</span>
+      <p style="margin: 0; flex: 1 1 320px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">Vous avez vendu 12 % de plus que le mois dernier, à la même date. 385 000 FCFA restent en retard.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+      <div style="background: #FFFFFF; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 700; color: #565B66">Trésorerie disponible</span>
+        <b style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-variant-numeric: tabular-nums">4 860 000</b>
+        <span style="font-size: 13px; font-weight: 600; color: #565B66">41 jours de dépenses</span>
+      </div>
+      <div style="background: #FFFFFF; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 700; color: #565B66">Ventes du mois</span>
+        <b style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-variant-numeric: tabular-nums">2 900 000</b>
+        <span style="font-size: 13px; font-weight: 700; color: #0F7A4A">+12 % vs octobre</span>
+      </div>
+      <div style="background: #FFFFFF; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 700; color: #565B66">Marge du mois</span>
+        <b style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; color: #0F7A4A; font-variant-numeric: tabular-nums">+1 200 000</b>
+        <span style="font-size: 13px; font-weight: 600; color: #565B66">41 % des ventes</span>
+      </div>
+      <div style="background: #FFE8DA; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 13px; font-weight: 800; color: #8F3708">Argent chez les clients</span>
+        <b style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; color: #8F3708; font-variant-numeric: tabular-nums">1 240 000</b>
+        <span style="font-size: 13px; font-weight: 700; color: #8F3708">dont 385 000 en retard</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 14px">
+      <section aria-labelledby="flux" style="flex: 2 1 460px; min-width: 0; background: #FFFFFF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px">
+          <h2 id="flux" style="margin: 0; font-size: 16px; font-weight: 800">Entrées et sorties, 8 dernières semaines</h2>
+          <div style="display: flex; gap: 14px; font-size: 13px; font-weight: 700">
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #2D2A9E"></span>Entrées</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: #B6B8B1"></span>Sorties</span>
+          </div>
+        </div>
+        <div role="img" aria-label="Entrées supérieures aux sorties sur 7 des 8 dernières semaines" style="height: 220px; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; align-items: end; border-bottom: 1.5px solid #10131A">
+          <sc-for list="{{weeks}}" as="w" hint-placeholder-count="8">
+            <div style="height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 3px">
+              <span style="{{w.inStyle}}"></span>
+              <span style="{{w.outStyle}}"></span>
+            </div>
+          </sc-for>
+        </div>
+        <div aria-hidden="true" style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; margin-top: -8px">
+          <sc-for list="{{weeks}}" as="w" hint-placeholder-count="8">
+            <span style="text-align: center; font-size: 12px; font-weight: 600; color: #565B66">{{w.label}}</span>
+          </sc-for>
+        </div>
+      </section>
+
+      <section aria-labelledby="age" style="flex: 1 1 280px; min-width: 0; background: #FFFFFF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="age" style="margin: 0; font-size: 16px; font-weight: 800">Qui vous doit, depuis quand</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">Pas encore échu</span><b style="font-variant-numeric: tabular-nums">855 000</b></div>
+            <div aria-hidden="true" style="height: 10px; border-radius: 999px; background: #ECEDE9"><div style="width: 69%; height: 100%; border-radius: 999px; background: #4B47C9"></div></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">1 à 15 jours de retard</span><b style="font-variant-numeric: tabular-nums">200 000</b></div>
+            <div aria-hidden="true" style="height: 10px; border-radius: 999px; background: #ECEDE9"><div style="width: 16%; height: 100%; border-radius: 999px; background: #E0661F"></div></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 700; color: #8F3708">Plus de 15 jours</span><b style="color: #8F3708; font-variant-numeric: tabular-nums">185 000</b></div>
+            <div aria-hidden="true" style="height: 10px; border-radius: 999px; background: #ECEDE9"><div style="width: 15%; height: 100%; border-radius: 999px; background: #8F3708"></div></div>
+          </div>
+        </div>
+        <a href="Recouvrement.dc.html" style="margin-top: auto; display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 12px; background: #0F7A4A; color: #FFFFFF; font-weight: 800; font-size: 15px; text-decoration: none">Relancer les 5 retards</a>
+      </section>
+    </div>
+
+    <section aria-labelledby="last" style="background: #FFFFFF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <h2 id="last" style="margin: 0; font-size: 16px; font-weight: 800">Dernières opérations</h2>
+        <a href="Activite.dc.html" style="font-size: 14px; font-weight: 800; text-decoration: none; padding: 10px 0">Tout voir</a>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14px">
+          <thead>
+            <tr style="text-align: left; color: #565B66; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">
+              <th style="padding: 8px 8px 8px 0; font-weight: 800">Heure</th>
+              <th style="padding: 8px; font-weight: 800">Libellé</th>
+              <th style="padding: 8px; font-weight: 800">Type</th>
+              <th style="padding: 8px; font-weight: 800">Moyen</th>
+              <th style="padding: 8px 0 8px 8px; font-weight: 800; text-align: right">Montant FCFA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top: 1px solid #ECEDE9"><td style="padding: 12px 8px 12px 0">12 h 05</td><td style="padding: 12px 8px; font-weight: 700">Transport</td><td style="padding: 12px 8px">Dépense</td><td style="padding: 12px 8px">Caisse</td><td style="padding: 12px 0 12px 8px; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums">− 15 000</td></tr>
+            <tr style="border-top: 1px solid #ECEDE9"><td style="padding: 12px 8px 12px 0">11 h 42</td><td style="padding: 12px 8px; font-weight: 700">M. Hounkpè · facture 214</td><td style="padding: 12px 8px">Paiement relance</td><td style="padding: 12px 8px">MoMo</td><td style="padding: 12px 0 12px 8px; text-align: right; font-weight: 800; color: #0F7A4A; font-variant-numeric: tabular-nums">+ 185 000</td></tr>
+            <tr style="border-top: 1px solid #ECEDE9"><td style="padding: 12px 8px 12px 0">10 h 12</td><td style="padding: 12px 8px; font-weight: 700">Vente comptoir</td><td style="padding: 12px 8px">Vente</td><td style="padding: 12px 8px">MoMo</td><td style="padding: 12px 0 12px 8px; text-align: right; font-weight: 800; color: #0F7A4A; font-variant-numeric: tabular-nums">+ 25 000</td></tr>
+            <tr style="border-top: 1px solid #ECEDE9"><td style="padding: 12px 8px 12px 0">Hier</td><td style="padding: 12px 8px; font-weight: 700">Hôtel du Lac</td><td style="padding: 12px 8px">Vente à crédit</td><td style="padding: 12px 8px">—</td><td style="padding: 12px 0 12px 8px; text-align: right; font-weight: 800; color: #8F3708; font-variant-numeric: tabular-nums">520 000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const ins = [62, 70, 55, 78, 66, 84, 72, 90];
+    const outs = [48, 52, 60, 50, 47, 58, 49, 55];
+    const labels = ['S36', 'S37', 'S38', 'S39', 'S40', 'S41', 'S42', 'S43'];
+    const bar = (h, c) => 'flex: 1; max-width: 22px; height: ' + h + '%; background: ' + c + '; border-radius: 6px 6px 0 0';
+    return {
+      weeks: labels.map((label, i) => ({ label, inStyle: bar(ins[i], '#2D2A9E'), outStyle: bar(outs[i], '#B6B8B1') }))
+    };
+  }
+}
+</script>
+</body>
+</html>

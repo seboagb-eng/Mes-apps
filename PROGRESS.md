@@ -89,6 +89,16 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 1 (tokens + polices) ✅
+- Branche `refonte-design` dédiée (jamais fusionnée directement sur `main`).
+- Docs de refonte déposées : `docs/REFONTE_DESIGN.md` + maquettes HTML dans `docs/design/maquettes/`.
+- **Tailwind** : nouvelle palette complète (ink, ground, surface, line, divider, muted, primary/dark/mid/light/tint, success, late, watch, disabled, danger). Alias `warning → late.text` pour compatibilité ascendante jusqu'à Phase 2.
+- **Polices** : Bricolage Grotesque (500/700/800, variable `--font-display`) + Manrope (400–800, variable `--font-sans`) via `next/font/google` (auto-hébergées, `display: swap`).
+- **globals.css** réécrits : `.btn-primary`, `.btn-primary-lg`, `.btn-secondary`, `.btn-dark`, `.btn-whatsapp`, `.btn-credit`, `.btn-danger`, `.card` (sans ombre ni bordure), `.input` (52px, 16px min), `.label`, `.badge`, `.chip` / `.chip-on`, `.segmented`.
+- `theme_color` → `#2D2A9E` dans `layout.tsx` (viewport), `public/manifest.webmanifest`, icône SVG.
+- Tous les `#0B5FFF` remplacés dans `Graphiques.tsx` et `global-error.tsx`.
+- Build vert (30/30 tests, `npm run build` sans erreur).
+
 ## 🔧 À faire ensuite (ordre conseillé)
 1. **Créer le projet Supabase** et exécuter les migrations (voir `docs/SUPABASE.md`).
 2. Brancher les clés dans `.env.local`, tester l'inscription → onboarding → dashboard.
