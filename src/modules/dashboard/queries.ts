@@ -75,7 +75,7 @@ export async function chargerDashboard(): Promise<DonneesDashboard> {
     supabase
       .from("sales")
       .select("id, customer_id, date, montant_total, montant_paye, statut, echeance"),
-    supabase.from("accounts").select("solde_courant, type_compte"),
+    supabase.from("accounts").select("solde_courant, type"),
     supabase.from("transactions").select("type, categorie, montant, date"),
     supabase.from("customers").select("id, nom"),
   ]);
@@ -97,7 +97,7 @@ export async function chargerDashboard(): Promise<DonneesDashboard> {
 
   const cashParType = { banque: 0, mobile_money: 0, caisse: 0 };
   for (const c of comptes) {
-    const t = c.type_compte as keyof typeof cashParType;
+    const t = c.type as keyof typeof cashParType;
     if (t in cashParType) cashParType[t] += c.solde_courant;
   }
 

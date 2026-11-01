@@ -89,6 +89,16 @@
 - **À faire côté dashboard Supabase** (hors code) : activer « Leaked password
   protection » (Auth → Passwords).
 
+### Refonte design — Phase 6 (saisie rapide Vente + Dépense) ✅
+- **`/app/ventes/nouvelle`** : page dédiée saisie rapide — grand montant, boutons +5k/+10k/+25k/+50k,
+  chips mode (Espèces/MoMo/Moov/À crédit), champ client conditionnel, pavé 3×4, bouton
+  valider adaptatif (primary/late-text/disabled). Confirmation après save.
+- **`/app/tresorerie/depense`** : même principe — catégorie chips (8 options), segmenté source
+  compte, pavé, bouton bg-ink. Confirmation après save.
+- Composants : `SaisieVenteRapide.tsx` + `SaisieDepenseRapide.tsx` (modules respectifs).
+- Fix `queries.ts` : colonne `type` (non `type_compte`) sur accounts.
+- 30/30 tests, build vert (2 nouvelles routes).
+
 ### Refonte design — Phase 5 (dashboard accueil) ✅
 - Dashboard `/app` entièrement redesigné : header date + nom entreprise + badge "En direct",
   CarteVerdict (bonne/surveiller/tendue + phrase calculée), section "Où est mon argent ?"
